@@ -219,7 +219,17 @@ function show_crm_form() {
 
         // A. Validation
         $errors = [];
-        $required_fields = ['business_name', 'sales_stage']; 
+        $required_fields = [
+            'business_name', 
+            'sales_stage', 
+            'contact_first_name', 
+            'contact_last_name', 
+            'email', 
+            'phone', 
+            'website_url', 
+            'city', 
+            'state'
+        ]; 
         
         if(isset($_POST['location_type']) && $_POST['location_type'] == 'POS Integrated') $required_fields[] = 'pos_system';
         if(isset($_POST['source']) && $_POST['source'] == 'Other') $required_fields[] = 'source_other';
@@ -448,8 +458,8 @@ function show_crm_form() {
                 <input type="text" name="business_name" class="crm-input" value="<?php echo esc_attr($title); ?>" required>
             </div>
             <div class="crm-full">
-                <label class="crm-label">Website URL</label>
-                <input type="text" name="website_url" class="crm-input" value="<?php echo $gv('website_url',$db); ?>">
+                <label class="crm-label">Website URL *</label>
+                <input type="text" name="website_url" class="crm-input" value="<?php echo $gv('website_url',$db); ?>" required>
             </div>
         </div>
 
@@ -691,17 +701,17 @@ function show_crm_form() {
 
         <div class="crm-row">
             <div class="crm-full">
-                <label class="crm-label">Contact First Name</label>
-                <input type="text" name="contact_first_name" class="crm-input" value="<?php echo $gv('contact_first_name',$db); ?>">
+                <label class="crm-label">Contact First Name *</label>
+                <input type="text" name="contact_first_name" class="crm-input" value="<?php echo $gv('contact_first_name',$db); ?>" required>
             </div>
             <div class="crm-full"> 
-                <label class="crm-label">Contact Last Name</label>
-                <input type="text" name="contact_last_name" class="crm-input" value="<?php echo $gv('contact_last_name',$db); ?>">
+                <label class="crm-label">Contact Last Name *</label>
+                <input type="text" name="contact_last_name" class="crm-input" value="<?php echo $gv('contact_last_name',$db); ?>" required>
             </div>
         </div>
         
-        <div class="crm-full"><div><label class="crm-label">Phone</label><input type="text" name="phone" class="crm-input" value="<?php echo $gv('phone',$db); ?>"></div></div>
-        <div class="crm-full"><div><label class="crm-label">Email</label><input type="email" name="email" class="crm-input" value="<?php echo $gv('email',$db); ?>"></div></div>
+        <div class="crm-full"><div><label class="crm-label">Phone *</label><input type="text" name="phone" class="crm-input" value="<?php echo $gv('phone',$db); ?>" required></div></div>
+        <div class="crm-full"><div><label class="crm-label">Email *</label><input type="email" name="email" class="crm-input" value="<?php echo $gv('email',$db); ?>" required></div></div>
         <div class="crm-full"><div><label class="crm-label">Email (CC)</label><input type="email" name="email_cc" class="crm-input" value="<?php echo $gv('email_cc',$db); ?>"></div></div>
 
         <div class="crm-full">
@@ -715,10 +725,10 @@ function show_crm_form() {
                     <option value="England">England</option>
                 </select>
             </div><br>
-            <div class="crm-full"><label class="crm-label">City</label><input type="text" name="city" class="crm-input" value="<?php echo $gv('city',$db); ?>"></div>
+            <div class="crm-full"><label class="crm-label">City *</label><input type="text" name="city" class="crm-input" value="<?php echo $gv('city',$db); ?>" required></div>
             <div class="crm-full">
-                <label class="crm-label" id="stateLabel">State</label>
-                <select name="state" id="stateSel" class="crm-select">
+                <label class="crm-label" id="stateLabel">State *</label>
+                <select name="state" id="stateSel" class="crm-select" required>
                     <option value="">Select State</option>
                 </select>
             </div>
