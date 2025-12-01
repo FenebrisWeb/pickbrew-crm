@@ -284,12 +284,48 @@ function show_crm_form() {
             $msg .= "<table style='border-collapse: collapse; width: 100%; max-width: 600px; margin-top: 20px;'>";
             $msg .= "<tr style='background:#f9f9f9; text-align:left;'><th style='padding:8px; border:1px solid #ddd;'>Field</th><th style='padding:8px; border:1px solid #ddd;'>Value</th></tr>";
             
+            // --- LOGIC HELPERS FOR EMAIL ---
+            $deal_type   = isset($_POST['deal_type_radio']) ? $_POST['deal_type_radio'] : '';
+            $sales_stage = isset($_POST['sales_stage']) ? $_POST['sales_stage'] : '';
+            $bp_stage    = isset($_POST['big_picture_stage']) ? $_POST['big_picture_stage'] : '';
+            $loc_type    = isset($_POST['location_type']) ? $_POST['location_type'] : '';
+            $source_val  = isset($_POST['source']) ? $_POST['source'] : '';
+            $do_mockup   = isset($_POST['send_mockup_check']) && $_POST['send_mockup_check'] === 'yes';
+
+            $relevant_stages_for_bp = ['Commitment Obtained', 'Signed', 'Archive'];
+
             foreach($fields as $f) {
-                if(isset($_POST[$f]) && $_POST[$f] !== '') {
-                    $nice_name = ucwords(str_replace(['_', 'val'], [' ', ''], $f)); 
-                    $nice_val = sanitize_text_field($_POST[$f]);
-                    $msg .= "<tr><td style='padding:8px; border:1px solid #ddd;'>$nice_name</td><td style='padding:8px; border:1px solid #ddd;'>$nice_val</td></tr>";
+                // Skip if field is not submitted or empty
+                if(!isset($_POST[$f]) || $_POST[$f] === '') continue;
+
+                // --- 1. FILTER: Deal Type Logic ---
+                if ($f === 'commission_rate_val' && $deal_type !== 'Commission') continue;
+                if ($f === 'proposed_rate_val'   && $deal_type !== 'Daily_2') continue;
+                if ($f === 'monthly_fee_val'     && $deal_type !== 'Flat') continue;
+
+                // --- 2. FILTER: Big Picture Stage Logic ---
+                // Only show BP Stage if Sales Stage is relevant
+                if ($f === 'big_picture_stage' && !in_array($sales_stage, $relevant_stages_for_bp)) continue;
+
+                // --- 3. FILTER: Big Picture Archive Details ---
+                // Only show BP Archive Details if BP Stage is actually 'Archive' (and visible)
+                if ($f === 'bp_archived_details') {
+                    if (!in_array($sales_stage, $relevant_stages_for_bp) || $bp_stage !== 'Archive') continue;
                 }
+
+                // --- 4. FILTER: Mockup Details ---
+                if (in_array($f, ['mockup_theme', 'client_username', 'client_password']) && !$do_mockup) continue;
+
+                // --- 5. FILTER: POS System (Double Check) ---
+                if ($f === 'pos_system' && $loc_type !== 'POS Integrated') continue;
+
+                // --- 6. FILTER: Source Other (Double Check) ---
+                if ($f === 'source_other' && $source_val !== 'Other') continue;
+
+                // --- OUTPUT VALID FIELD ---
+                $nice_name = ucwords(str_replace(['_', 'val'], [' ', ''], $f)); 
+                $nice_val = sanitize_text_field($_POST[$f]);
+                $msg .= "<tr><td style='padding:8px; border:1px solid #ddd;'>$nice_name</td><td style='padding:8px; border:1px solid #ddd;'>$nice_val</td></tr>";
             }
             $msg .= "</table>";
             
