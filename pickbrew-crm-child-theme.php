@@ -351,9 +351,32 @@ function show_crm_form() {
             // E. Client Mockup Email (Optional)
             if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
                 $to = sanitize_email($_POST['email']);
+                $cc = isset($_POST['email_cc']) ? sanitize_email($_POST['email_cc']) : '';
+
                 $u = isset($_POST['client_username']) ? sanitize_text_field($_POST['client_username']) : '';
                 $pw = isset($_POST['client_password']) ? sanitize_text_field($_POST['client_password']) : '';
-                wp_mail( $to, "Your Theme Mockup", "Hello,\n\nHere are your login details:\nUser: $u\nPass: $pw" );
+                $theme = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
+                
+                // 1. Prepare Headers (CC)
+                $client_headers = array();
+                if ( !empty($cc) ) {
+                    $client_headers[] = 'Cc: ' . $cc;
+                }
+
+                // 2. Prepare Attachments based on selection
+                $attachments = array();
+                
+                // FIX: Use relative paths from the uploads folder, NOT the full URL.
+                if ( $theme === 'Light' ) {
+                    $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-light.webp'; 
+                } elseif ( $theme === 'Dark' ) {
+                    $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-dark.webp'; 
+                }
+
+                // 3. Send Email
+                $msg_body = "Hello,\n\nHere are your login details:\nUser: $u\nPass: $pw\n\n(See attached mockup)";
+                
+                wp_mail( $to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
             }
             
             echo '<script>window.location.href="/crm/?msg='.$status_msg.'";</script>'; exit;
