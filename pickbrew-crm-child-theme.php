@@ -102,7 +102,10 @@ function show_crm_dashboard() {
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
             <h2 style="margin:0; font-weight:700;">Private: CRM</h2>
-            <a href="/add-new-entry/" style="background:#000; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px;">+ Add New Entry</a>
+            <div>
+				<a href="/add-new-entry/" style="background:#000; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px;">+ Add New Entry</a>
+			<a href="/send-agreement/" style="background:#023020; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px;">+ Send Agreement</a>
+			</div>
         </div>
 
         <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0;">
