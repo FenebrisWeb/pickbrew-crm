@@ -104,7 +104,7 @@ function show_crm_dashboard() {
             <h2 style="margin:0; font-weight:700;">Private: CRM</h2>
         </div>
 		<div style="margin: 20px 0">
-				<a href="/add-new-entry/" style="padding:10px 0; text-decoration:none; border-radius:6px; font-weight:500; font-size:22px;">+ Add New Entry</a>
+				<a href="/add-new-entry/" style="padding:10px 0; text-decoration:none; border-radius:6px; font-weight:500; font-size:22px;">Add New Entry</a>
 			</div>
 
         <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0;">
@@ -211,8 +211,8 @@ function show_crm_form() {
         // 📧 ADMIN EMAIL SETTINGS
         // =================================================================
         $admin_emails = array( 
-            'amit.kumar@fenebrisindia.com',   // Admin 1
-            // 'partner@example.com',         // Admin 2
+            'aryan@pickbrew.com',   // Admin 1
+            'amit.kumar@fenebrisindia.com',   // Admin 2
         ); 
         // =================================================================
 
@@ -261,7 +261,8 @@ function show_crm_form() {
                 'commission_rate_val', 'monthly_fee_val', 'proposed_rate_val', 'monthly_cap',
                 'source', 'contact_first_name', 'contact_last_name', 
                 'phone', 'email', 'email_cc', 'city', 'state', 'zip', 'country', 
-                'send_mockup_check', 'mockup_theme', 'client_username', 'client_password',
+                'send_mockup_check', 'mockup_theme', 'mockup_type', 'mockup_url', // Added mockup fields
+                'client_username', 'client_password',
                 'big_picture_stage', 'date_signed', 'archive_reason', 'archive_comments', 
                 'bp_archived_details', 'pos_system', 'source_other'
             ];
@@ -326,7 +327,7 @@ function show_crm_form() {
                 }
 
                 // --- 4. FILTER: Mockup Details ---
-                if (in_array($f, ['mockup_theme', 'client_username', 'client_password']) && !$do_mockup) continue;
+                if (in_array($f, ['mockup_theme', 'mockup_type', 'mockup_url']) && !$do_mockup) continue;
 
                 // --- 5. FILTER: POS System (Double Check) ---
                 if ($f === 'pos_system' && $loc_type !== 'POS Integrated') continue;
@@ -335,7 +336,7 @@ function show_crm_form() {
                 if ($f === 'source_other' && $source_val !== 'Other') continue;
 
                 // --- OUTPUT VALID FIELD ---
-                $nice_name = ucwords(str_replace(['_', 'val'], [' ', ''], $f)); 
+                $nice_name = ucwords(str_replace(['_', 'val', 'radio'], [' ', '', ''], $f)); 
                 $nice_val = sanitize_text_field($_POST[$f]);
                 $msg .= "<tr><td style='padding:8px; border:1px solid #ddd;'>$nice_name</td><td style='padding:8px; border:1px solid #ddd;'>$nice_val</td></tr>";
             }
@@ -354,41 +355,59 @@ function show_crm_form() {
             }
             $msg .= "<p><a href='" . home_url('/add-new-entry/?entry_id='.$eid) . "'>View in CRM</a></p></body></html>";
 
-            // Send
+            // Send to Admin
             $mail_sent = wp_mail( $admin_emails, $subject, $msg, $headers );
-            
-            // Redirect with Status
             $status_msg = $mail_sent ? 'success' : 'mail_error';
 
-            // E. Client Mockup Email (Optional)
-            if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
-                $to = sanitize_email($_POST['email']);
-                $cc = isset($_POST['email_cc']) ? sanitize_email($_POST['email_cc']) : '';
+            // =================================================================
+            // E. CLIENT EMAILS (Mockup & Credentials Separated)
+            // =================================================================
+            
+            $client_to = sanitize_email($_POST['email']);
+            $client_cc = isset($_POST['email_cc']) ? sanitize_email($_POST['email_cc']) : '';
+            $client_headers = array();
+            if ( !empty($client_cc) ) {
+                $client_headers[] = 'Cc: ' . $client_cc;
+            }
 
+            // --- E1. Mockup Email (Optional) ---
+            if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
+                
+                $m_type = isset($_POST['mockup_type']) ? $_POST['mockup_type'] : 'Image';
+                $m_url  = isset($_POST['mockup_url']) ? esc_url_raw($_POST['mockup_url']) : '';
+                $theme  = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
+                
+                $attachments = array();
+                $msg_body = "Hello,\n\n";
+
+                if ( $m_type === 'URL' ) {
+                    // Send URL only
+                    $msg_body .= "Please check the following link to view your theme mockup:\n" . $m_url . "\n\n";
+                    $msg_body .= "Let us know your thoughts.";
+                } else {
+                    // Send Image Attachment
+                    if ( $theme === 'Light' ) {
+                        $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-light.webp'; 
+                    } elseif ( $theme === 'Dark' ) {
+                        $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-dark.webp'; 
+                    }
+                    $msg_body .= "Please see the attached mockup image for your review.";
+                }
+                
+                // Note: No credentials sent here
+                wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
+            }
+
+            // --- E2. Credentials Email (Optional, Separate) ---
+            if ( isset($_POST['send_creds_check']) && $_POST['send_creds_check']=='yes' ) {
+                
                 $u = isset($_POST['client_username']) ? sanitize_text_field($_POST['client_username']) : '';
                 $pw = isset($_POST['client_password']) ? sanitize_text_field($_POST['client_password']) : '';
-                $theme = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
                 
-                // 1. Prepare Headers (CC)
-                $client_headers = array();
-                if ( !empty($cc) ) {
-                    $client_headers[] = 'Cc: ' . $cc;
+                if(!empty($u) || !empty($pw)) {
+                    $msg_body = "Hello,\n\nHere are your login details:\n\nUser: $u\nPass: $pw\n\nPlease keep these credentials safe.";
+                    wp_mail( $client_to, "Your Login Credentials", $msg_body, $client_headers );
                 }
-
-                // 2. Prepare Attachments based on selection
-                $attachments = array();
-                
-                // FIX: Use relative paths from the uploads folder, NOT the full URL.
-                if ( $theme === 'Light' ) {
-                    $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-light.webp'; 
-                } elseif ( $theme === 'Dark' ) {
-                    $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-dark.webp'; 
-                }
-
-                // 3. Send Email
-                $msg_body = "Hello,\n\nHere are your login details:\nUser: $u\nPass: $pw\n\n(See attached mockup)";
-                
-                wp_mail( $to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
             }
             
             echo '<script>window.location.href="/crm/?msg='.$status_msg.'";</script>'; exit;
@@ -672,20 +691,43 @@ function show_crm_form() {
         <div class="mockup-box">
             <label style="font-weight:700; cursor:pointer;">
                 <input type="checkbox" id="mockCheck" name="send_mockup_check" value="yes" style="transform:scale(1.3); margin-right:10px;" <?php checked($gv('send_mockup_check',$db),'yes'); ?>> 
-                Send Mockup Images
+                Send Mockup (Image or URL)
             </label>
             <div id="mockOpts" style="display:none; margin-top:20px;">
-                <input type="hidden" name="mockup_theme" id="thmInput" value="<?php echo $gv('mockup_theme',$db); ?>">
-                <div class="theme-grid">
-                    <div class="t-card" onclick="selTheme('Light',this)">
-                        <img src="https://via.placeholder.com/300x150?text=Light+Theme" alt="Light">
-                        <strong>Light Theme</strong>
-                    </div>
-                    <div class="t-card" onclick="selTheme('Dark',this)">
-                        <img src="https://via.placeholder.com/300x150?text=Dark+Theme" alt="Dark">
-                        <strong>Dark Theme</strong>
+                
+                <div style="margin-bottom:15px;">
+                    <label style="margin-right:15px; font-weight:600;"><input type="radio" name="mockup_type" value="Image" onclick="toggleMockType('Image')" <?php checked($gv('mockup_type',$db)!='URL'); ?>> Send Image</label>
+                    <label style="font-weight:600;"><input type="radio" name="mockup_type" value="URL" onclick="toggleMockType('URL')" <?php checked($gv('mockup_type',$db),'URL'); ?>> Send URL</label>
+                </div>
+
+                <div id="wrap_mock_img" style="display:none;">
+                    <input type="hidden" name="mockup_theme" id="thmInput" value="<?php echo $gv('mockup_theme',$db); ?>">
+                    <div>
+                        <div class="t-card" onclick="selTheme('Light',this)">
+                            <img src="https://via.placeholder.com/300x150?text=Light+Theme" alt="Light">
+                            <strong>Light Theme</strong>
+                        </div><br>
+                        <div class="t-card" onclick="selTheme('Dark',this)">
+                            <img src="https://via.placeholder.com/300x150?text=Dark+Theme" alt="Dark">
+                            <strong>Dark Theme</strong>
+                        </div>
                     </div>
                 </div>
+
+                <div id="wrap_mock_url" style="display:none;">
+                    <div class="crm-full">
+                        <div><label class="crm-label">Mockup URL</label><input type="text" name="mockup_url" class="crm-input" value="<?php echo $gv('mockup_url',$db); ?>" placeholder="https://..."></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-box" style="margin-top:20px; border-color:#eee; background:#fffdf0;">
+            <label style="font-weight:700; cursor:pointer;">
+                <input type="checkbox" id="credCheck" name="send_creds_check" value="yes" style="transform:scale(1.3); margin-right:10px;"> 
+                Send Login Credentials (Update to Email)
+            </label>
+            <div id="credOpts" style="display:none; margin-top:20px;">
                 <div class="crm-full">
                     <div><label class="crm-label">Username</label><input type="text" name="client_username" class="crm-input" value="<?php echo $gv('client_username',$db); ?>"></div>
                 </div>
@@ -834,6 +876,15 @@ function show_crm_form() {
         mCheck.addEventListener('change', function(){ mBox.style.display = this.checked ? 'block' : 'none'; });
         if(mCheck.checked) mBox.style.display='block';
 
+        window.toggleMockType = function(type) {
+            document.getElementById('wrap_mock_img').style.display = (type==='Image') ? 'block' : 'none';
+            document.getElementById('wrap_mock_url').style.display = (type==='URL') ? 'block' : 'none';
+        }
+        
+        // Init Mockup Type
+        const savedMType = "<?php echo $gv('mockup_type',$db); ?>";
+        toggleMockType((savedMType === 'URL') ? 'URL' : 'Image');
+
         window.selTheme = function(name, el) {
             document.getElementById('thmInput').value=name;
             document.querySelectorAll('.t-card').forEach(c => c.classList.remove('sel'));
@@ -841,8 +892,15 @@ function show_crm_form() {
         }
         const curTheme = "<?php echo $gv('mockup_theme',$db); ?>";
         const cards = document.querySelectorAll('.t-card');
-        if(curTheme==='Light') cards[0].classList.add('sel');
-        if(curTheme==='Dark') cards[1].classList.add('sel');
+        if(curTheme==='Light' && cards.length>0) cards[0].classList.add('sel');
+        if(curTheme==='Dark' && cards.length>1) cards[1].classList.add('sel');
+
+        // --- CREDENTIALS LOGIC ---
+        const cCheck = document.getElementById('credCheck');
+        const cBox = document.getElementById('credOpts');
+        cCheck.addEventListener('change', function(){ cBox.style.display = this.checked ? 'block' : 'none'; });
+        if(cCheck.checked) cBox.style.display='block';
+
 
         // --- NOTES LOGIC ---
         const nTog = document.getElementById('noteTog');
