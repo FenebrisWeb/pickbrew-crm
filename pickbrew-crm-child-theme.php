@@ -100,13 +100,12 @@ function show_crm_dashboard() {
     ?>
     <div style="font-family:'Inter', sans-serif; max-width:1550px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.05); overflow-x: auto;">
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
             <h2 style="margin:0; font-weight:700;">Private: CRM</h2>
-            <div>
-				<a href="/add-new-entry/" style="background:#000; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px;">+ Add New Entry</a>
-			<a href="/send-agreement/" style="background:#023020; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px;">+ Send Agreement</a>
-			</div>
         </div>
+		<div style="margin: 20px 0">
+				<a href="/add-new-entry/" style="padding:10px 0; text-decoration:none; border-radius:6px; font-weight:500; font-size:22px;">+ Add New Entry</a>
+			</div>
 
         <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0;">
             <a href="/crm/" style="display:inline-block; padding-bottom:15px; margin-right:20px; font-weight:600; text-decoration:none; color:<?php echo ($view=='active')?'#000':'#888'; ?>; border-bottom:2px solid <?php echo ($view=='active')?'#000':'transparent'; ?>;">Active Entries</a>
