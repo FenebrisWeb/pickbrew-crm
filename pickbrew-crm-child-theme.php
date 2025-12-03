@@ -466,7 +466,9 @@ function show_crm_form() {
         .t-card.sel { border-color:#007cba; } .t-card.sel img { opacity:1; }
         .sub-btn { background:#000; color:#fff; width:100%; padding:16px; border:none; font-size:16px; font-weight:700; cursor:pointer; margin-top:30px; border-radius:4px; }
     </style>
-
+<div style="padding: 10px 0;">
+	<a href="https://collective.pickbrew.com/crm" style="color: blue;">Go to CRM</a>
+</div>
     <form method="post" id="crmForm" novalidate>
         <?php if($mode=='edit') echo '<input type="hidden" name="entry_id" value="'.$eid.'">'; ?>
 
