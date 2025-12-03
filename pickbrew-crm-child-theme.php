@@ -98,7 +98,7 @@ function show_crm_dashboard() {
 
     ob_start(); 
     ?>
-    <div style="font-family:'Inter', sans-serif; max-width:1550px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.05); overflow-x: auto;">
+    <div style="font-family:'Inter', sans-serif; font-size: 14px; max-width:1550px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.05); overflow-x: auto;">
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
             <h2 style="margin:0; font-weight:700;">Private: CRM</h2>
@@ -114,7 +114,7 @@ function show_crm_dashboard() {
 
         <table style="width:100%; border-collapse:collapse; min-width: 900px;">
             <thead>
-                <tr style="background:#fafafa; text-align:left; color:#666; font-size:12px; text-transform:uppercase; border-bottom: 2px solid #eee;">
+                <tr style="background:#fafafa; text-align:left; color:#666; font-size:1px; text-transform:uppercase; border-bottom: 2px solid #eee;">
                     <th style="padding:15px;">Sales Stage</th>
                     <th style="padding:15px;">Business Name</th>
                     <th style="padding:15px;">Name</th>
@@ -145,19 +145,19 @@ function show_crm_dashboard() {
                 $display_stage = isset($stage_map[$raw_stage]) ? $stage_map[$raw_stage] : $raw_stage;
             ?>
             <tr style="border-bottom:1px solid #f5f5f5; font-size:13px; color:#333;">
-                <td style="padding:15px; font-weight:500;"><?php echo $display_stage; ?></td>
+                <td style="padding:5px; font-weight:500;"><?php echo $display_stage; ?></td>
                 
-                <td style="padding:15px; font-weight:700; color:#000;"><?php the_title(); ?></td>
+                <td style="padding:5px; font-weight:700; color:#000;"><?php the_title(); ?></td>
                 
-                <td style="padding:15px;"><?php echo $fullname; ?></td>
+                <td style="padding:5px;"><?php echo $fullname; ?></td>
                 
-                <td style="padding:15px;">
+                <td style="padding:5px;">
                     <a href="mailto:<?php echo $val('email'); ?>" style="color:#007cba; text-decoration:none;"><?php echo $val('email'); ?></a>
                 </td>
                 
-                <td style="padding:15px;"><?php echo $val('phone'); ?></td>
+                <td style="padding:5px;"><?php echo $val('phone'); ?></td>
                 
-                <td style="padding:15px;">
+                <td style="padding:5px;">
                     <?php 
                         $site = $val('website_url');
                         if($site != '-') {
@@ -169,27 +169,29 @@ function show_crm_dashboard() {
                     ?>
                 </td>
                 
-                <td style="padding:15px;"><?php echo $val('city'); ?></td>
+                <td style="padding:5px;"><?php echo $val('city'); ?></td>
                 
-                <td style="padding:15px;"><?php echo $val('state'); ?></td>
+                <td style="padding:5px;"><?php echo $val('state'); ?></td>
                 
-                <td style="padding:15px; text-align:right; font-weight:600;">
-                    <?php if ($view=='active'): ?>
-                        <a href="/add-new-entry/?entry_id=<?php echo $id; ?>" style="color:#000; text-decoration:none; margin-right:8px;">Edit</a>
-                        
-                        <span style="color:#ddd;">|</span>
-                        <a href="?entry_id=<?php echo $id; ?>&action=archive" style="color:#d97706; text-decoration:none; margin:0 8px;">Archive</a>
-                        
-                        <span style="color:#ddd;">|</span>
-                        <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none; margin-left:8px;" onclick="return confirm('Are you sure you want to permanently delete this entry?');">Delete</a>
-                    
-                    <?php else: ?>
-                        <a href="?entry_id=<?php echo $id; ?>&action=restore" style="color:green; text-decoration:none;">Restore</a>
-                        
-                        <span style="color:#ddd;">|</span>
-                        <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none; margin-left:8px;" onclick="return confirm('Permanently delete?');">Delete</a>
-                    <?php endif; ?>
-                </td>
+                <td style="padding:5px; font-weight:600;">
+    <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; white-space:nowrap;">
+        <?php if ($view=='active'): ?>
+            <a href="/add-new-entry/?entry_id=<?php echo $id; ?>" style="color:#000; text-decoration:none; font-size: 11px;">Edit</a>
+            
+            <span style="color:#ddd;">|</span>
+            <a href="?entry_id=<?php echo $id; ?>&action=archive" style="color:#d97706; text-decoration:none; font-size: 11px;">Archive</a>
+            
+            <span style="color:#ddd;">|</span>
+            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none; font-size: 11px;" onclick="return confirm('Are you sure you want to permanently delete this entry?');">Delete</a>
+        
+        <?php else: ?>
+            <a href="?entry_id=<?php echo $id; ?>&action=restore" style="color:green; text-decoration:none;">Restore</a>
+            
+            <span style="color:#ddd;">|</span>
+            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none;" onclick="return confirm('Permanently delete?');">Delete</a>
+        <?php endif; ?>
+    </div>
+</td>
             </tr>
             <?php endwhile; else: ?>
                 <tr><td colspan="9" style="padding:40px; text-align:center; color:#999;">No entries found.</td></tr>
