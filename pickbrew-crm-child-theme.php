@@ -242,6 +242,7 @@ function show_crm_form() {
         if(empty($errors)) {
             $eid = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : 0;
             $title = sanitize_text_field($_POST['business_name']);
+            $is_new = false;
             
             // B. Save Post
             $p = array('post_title'=>$title, 'post_status'=>'publish', 'post_type'=>'crm_entry');
@@ -410,7 +411,13 @@ function show_crm_form() {
                 }
             }
             
-            echo '<script>window.location.href="/crm/?msg='.$status_msg.'";</script>'; exit;
+            // REDIRECTION LOGIC UPDATED
+            if ($is_new) {
+                 echo '<script>window.location.href="/add-new-entry/?msg='.$status_msg.'";</script>'; 
+            } else {
+                 echo '<script>window.location.href="/crm/?msg='.$status_msg.'";</script>'; 
+            }
+            exit;
         } else {
              echo '<div style="background:#ffe6e6; padding:15px; border:1px solid red; margin-bottom:20px; color:#c00;">'.implode('<br>', $errors).'</div>';
         }
@@ -431,6 +438,10 @@ function show_crm_form() {
     // --- FIX: Use Anonymous Function to prevent Redeclaration Error ---
     $gv = function($k, $d){ return isset($d[$k][0]) ? $d[$k][0] : ''; };
     
+    // Set Default Country to USA if New Entry/Empty
+    $country_val = $gv('country',$db);
+    if(empty($country_val) && $mode == 'add') $country_val = 'USA';
+
     $date_val = $gv('date_of_entry', $db) ?: date('Y-m-d');
     $date_signed_val = $gv('date_signed', $db) ?: date('Y-m-d');
 
@@ -753,7 +764,7 @@ function show_crm_form() {
             </div>
         </div>
         
-        <div class="crm-full"><div><label class="crm-label">Phone *</label><input type="text" name="phone" class="crm-input" value="<?php echo $gv('phone',$db); ?>" required></div></div>
+        <div class="crm-full"><div><label class="crm-label">Phone *</label><input type="text" name="phone" class="crm-input" value="<?php echo $gv('phone',$db); ?>" required placeholder="(555)-555-5555"></div></div>
         <div class="crm-full"><div><label class="crm-label">Email *</label><input type="email" name="email" class="crm-input" value="<?php echo $gv('email',$db); ?>" required></div></div>
         <div class="crm-full"><div><label class="crm-label">Email (CC)</label><input type="email" name="email_cc" class="crm-input" value="<?php echo $gv('email_cc',$db); ?>"></div></div>
 
@@ -762,10 +773,10 @@ function show_crm_form() {
                 <label class="crm-label">Country</label>
                 <select name="country" id="countrySel" class="crm-select">
                     <option value="">Select Country</option>
-                    <option value="USA">USA</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
-                    <option value="England">England</option>
+                    <option value="USA" <?php selected($country_val, 'USA'); ?>>USA</option>
+                    <option value="Canada" <?php selected($country_val, 'Canada'); ?>>Canada</option>
+                    <option value="Australia" <?php selected($country_val, 'Australia'); ?>>Australia</option>
+                    <option value="England" <?php selected($country_val, 'England'); ?>>England</option>
                 </select>
             </div><br>
             <div class="crm-full"><label class="crm-label">City *</label><input type="text" name="city" class="crm-input" value="<?php echo $gv('city',$db); ?>" required></div>
@@ -788,6 +799,19 @@ function show_crm_form() {
     document.addEventListener('DOMContentLoaded', function(){
         
         const form = document.getElementById('crmForm');
+
+        // --- PHONE MASK LOGIC ---
+        const phoneInput = document.querySelector('input[name="phone"]');
+        if(phoneInput) {
+            phoneInput.addEventListener('input', function (e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+                if (!x[2]) {
+                    e.target.value = x[1];
+                } else {
+                    e.target.value = '(' + x[1] + ')-' + x[2] + (x[3] ? '-' + x[3] : '');
+                }
+            });
+        }
 
         // --- VALIDATOR LOGIC ---
         form.addEventListener('submit', function(e) {
@@ -940,15 +964,15 @@ function show_crm_form() {
 
         // --- COUNTRY / STATE LOGIC ---
         const data = {
-            "USA": ["Alabama","Alaska","Arizona","California","Florida","New York","Texas","Washington"],
-            "Canada": ["Alberta","British Columbia","Manitoba","Ontario","Quebec"],
-            "Australia": ["New South Wales","Queensland","Victoria","Western Australia"],
-            "England": ["Bedfordshire","Cambridgeshire","Essex","Hampshire","Kent","London","Yorkshire"]
+            "USA": ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
+            "Canada": ["Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland and Labrador","Nova Scotia","Northwest Territories","Nunavut","Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon"],
+            "Australia": ["Australian Capital Territory","New South Wales","Northern Territory","Queensland","South Australia","Tasmania","Victoria","Western Australia"],
+            "England": ["Bedfordshire","Berkshire","Bristol","Buckinghamshire","Cambridgeshire","Cheshire","Cornwall","County Durham","Cumbria","Derbyshire","Devon","Dorset","East Riding of Yorkshire","East Sussex","Essex","Gloucestershire","Greater London","Greater Manchester","Hampshire","Herefordshire","Hertfordshire","Isle of Wight","Kent","Lancashire","Leicestershire","Lincolnshire","Merseyside","Norfolk","North Yorkshire","Northamptonshire","Northumberland","Nottinghamshire","Oxfordshire","Rutland","Shropshire","Somerset","South Yorkshire","Staffordshire","Suffolk","Surrey","Tyne and Wear","Warwickshire","West Midlands","West Sussex","West Yorkshire","Wiltshire","Worcestershire"]
         };
         const cSel = document.getElementById('countrySel');
         const sSel = document.getElementById('stateSel');
         const sLbl = document.getElementById('stateLabel');
-        const savedCountry = "<?php echo $gv('country',$db); ?>";
+        const savedCountry = "<?php echo $country_val; ?>";
         const savedState = "<?php echo $gv('state',$db); ?>";
 
         function updateStates() {
