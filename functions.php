@@ -114,7 +114,7 @@ function show_crm_dashboard() {
 
         <table style="width:100%; border-collapse:collapse; min-width: 900px;">
             <thead>
-                <tr style="background:#fafafa; text-align:left; color:#666; font-size:1px; text-transform:uppercase; border-bottom: 2px solid #eee;">
+                <tr style="background:#fafafa; text-align:left; color:#000000; font-size:12px; text-transform:uppercase; border-bottom: 2px solid #eee;">
                     <th style="padding:15px;">Sales Stage</th>
                     <th style="padding:15px;">Business Name</th>
                     <th style="padding:15px;">Name</th>
@@ -147,7 +147,7 @@ function show_crm_dashboard() {
             <tr style="border-bottom:1px solid #f5f5f5; font-size:13px; color:#333;">
                 <td style="padding:5px; font-weight:500;"><?php echo $display_stage; ?></td>
                 
-                <td style="padding:5px; font-weight:700; color:#000;"><?php the_title(); ?></td>
+                <td style="padding:5px; font-weight:500; color:#000;"><?php the_title(); ?></td>
                 
                 <td style="padding:5px;"><?php echo $fullname; ?></td>
                 
