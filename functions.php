@@ -85,13 +85,32 @@ function show_crm_dashboard() {
 
     // Filter Logic based on View
     if ( $view == 'archived' ) {
+        // Tab: Archived (Exclude Duplicates)
         $args['post_status'] = 'archived';
+        $args['meta_query'] = array(
+            'relation' => 'OR',
+            array(
+                'key'     => 'archive_reason',
+                'value'   => 'Duplicate',
+                'compare' => '!='
+            ),
+            array(
+                'key'     => 'archive_reason',
+                'compare' => 'NOT EXISTS'
+            )
+        );
         
+    } elseif ( $view == 'duplicate' ) {
+        // Tab: Duplicate Entries
+        $args['post_status'] = 'archived';
+        $args['meta_key']    = 'archive_reason';
+        $args['meta_value']  = 'Duplicate';
+
     } elseif ( $view == 'live' ) {
-        // Tab: Live (Big Picture Stage = Live)
+        // Tab: Live (All Signed Entries)
         $args['post_status'] = 'publish';
-        $args['meta_key']    = 'big_picture_stage';
-        $args['meta_value']  = 'Live';
+        $args['meta_key']    = 'sales_stage';
+        $args['meta_value']  = 'Signed';
 
     } elseif ( $view == 'committed' ) {
         // Tab: Committed (Sales Stage = Commitment Obtained)
@@ -100,29 +119,13 @@ function show_crm_dashboard() {
         $args['meta_value']  = 'Commitment Obtained';
 
     } else {
-        // Tab: Active Entries (Default)
-        // Shows all published entries EXCEPT those in Live or Committed tabs
+        // Tab: Active Entries (2, 2a, 2b)
         $args['post_status'] = 'publish';
         $args['meta_query'] = array(
-            'relation' => 'AND',
-            // Exclude Committed
             array(
                 'key'     => 'sales_stage',
-                'value'   => 'Commitment Obtained',
-                'compare' => '!='
-            ),
-            // Exclude Live
-            array(
-                'relation' => 'OR',
-                array(
-                    'key'     => 'big_picture_stage',
-                    'value'   => 'Live',
-                    'compare' => '!='
-                ),
-                array(
-                    'key'     => 'big_picture_stage',
-                    'compare' => 'NOT EXISTS'
-                )
+                'value'   => array('Working', 'Shop Ownership', 'Actively Communication'),
+                'compare' => 'IN'
             )
         );
     }
@@ -159,8 +162,8 @@ function show_crm_dashboard() {
 
         <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0; white-space: nowrap; overflow-x:auto;">
             <a href="/crm/" style="<?php echo $tab_style . get_ts($view=='active'); ?>">Active Entries</a>
-            <a href="/crm/?view=live" style="<?php echo $tab_style . get_ts($view=='live'); ?>">Live</a>
             <a href="/crm/?view=committed" style="<?php echo $tab_style . get_ts($view=='committed'); ?>">Committed, Not Yet Signed.</a>
+            <a href="/crm/?view=live" style="<?php echo $tab_style . get_ts($view=='live'); ?>">Live</a>
             <a href="/crm/?view=archived" style="<?php echo $tab_style . get_ts($view=='archived'); ?>">Archived</a>
         </div>
 
@@ -226,24 +229,24 @@ function show_crm_dashboard() {
                 <td style="padding:5px;"><?php echo $val('state'); ?></td>
                 
                 <td style="padding:5px; font-weight:600;">
-    <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; white-space:nowrap;">
-        <?php if ($view != 'archived'): ?>
-            <a href="/add-new-entry/?entry_id=<?php echo $id; ?>" style="color:#000; text-decoration:none; font-size: 11px;">Edit</a>
-            
-            <span style="color:#ddd;">|</span>
-            <a href="?entry_id=<?php echo $id; ?>&action=archive" style="color:#d97706; text-decoration:none; font-size: 11px;">Archive</a>
-            
-            <span style="color:#ddd;">|</span>
-            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none; font-size: 11px;" onclick="return confirm('Are you sure you want to permanently delete this entry?');">Delete</a>
-        
-        <?php else: ?>
-            <a href="?entry_id=<?php echo $id; ?>&action=restore" style="color:green; text-decoration:none;">Restore</a>
-            
-            <span style="color:#ddd;">|</span>
-            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none;" onclick="return confirm('Permanently delete?');">Delete</a>
-        <?php endif; ?>
-    </div>
-</td>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; white-space:nowrap;">
+                        <?php if ($view != 'archived' && $view != 'duplicate'): ?>
+                            <a href="/add-new-entry/?entry_id=<?php echo $id; ?>" style="color:#000; text-decoration:none; font-size: 11px;">Edit</a>
+                            
+                            <span style="color:#ddd;">|</span>
+                            <a href="?entry_id=<?php echo $id; ?>&action=archive" style="color:#d97706; text-decoration:none; font-size: 11px;">Archive</a>
+                            
+                            <span style="color:#ddd;">|</span>
+                            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none; font-size: 11px;" onclick="return confirm('Are you sure you want to permanently delete this entry?');">Delete</a>
+                        
+                        <?php else: ?>
+                            <a href="?entry_id=<?php echo $id; ?>&action=restore" style="color:green; text-decoration:none;">Restore</a>
+                            
+                            <span style="color:#ddd;">|</span>
+                            <a href="?entry_id=<?php echo $id; ?>&action=delete" style="color:#dc2626; text-decoration:none;" onclick="return confirm('Permanently delete?');">Delete</a>
+                        <?php endif; ?>
+                    </div>
+                </td>
             </tr>
             <?php endwhile; else: ?>
                 <tr><td colspan="9" style="padding:40px; text-align:center; color:#999;">No entries found.</td></tr>
