@@ -72,21 +72,65 @@ function show_crm_dashboard() {
         }
     }
 
-    // --- VIEW LOGIC ---
+    // --- VIEW LOGIC (UPDATED FOR TABS) ---
     $view = isset($_GET['view']) ? $_GET['view'] : 'active';
-    $status = ($view == 'archived') ? 'archived' : 'publish';
     
-    // Query the database
-    $q = new WP_Query( array(
-        'post_type' => 'crm_entry', 
-        'post_status' => $status, 
+    // Default Query Args
+    $args = array(
+        'post_type'      => 'crm_entry', 
         'posts_per_page' => -1,
-        'orderby' => 'date',
-        'order' => 'DESC'
-    ));
+        'orderby'        => 'date',
+        'order'          => 'DESC'
+    );
+
+    // Filter Logic based on View
+    if ( $view == 'archived' ) {
+        $args['post_status'] = 'archived';
+        
+    } elseif ( $view == 'live' ) {
+        // Tab: Live (Big Picture Stage = Live)
+        $args['post_status'] = 'publish';
+        $args['meta_key']    = 'big_picture_stage';
+        $args['meta_value']  = 'Live';
+
+    } elseif ( $view == 'committed' ) {
+        // Tab: Committed (Sales Stage = Commitment Obtained)
+        $args['post_status'] = 'publish';
+        $args['meta_key']    = 'sales_stage';
+        $args['meta_value']  = 'Commitment Obtained';
+
+    } else {
+        // Tab: Active Entries (Default)
+        // Shows all published entries EXCEPT those in Live or Committed tabs
+        $args['post_status'] = 'publish';
+        $args['meta_query'] = array(
+            'relation' => 'AND',
+            // Exclude Committed
+            array(
+                'key'     => 'sales_stage',
+                'value'   => 'Commitment Obtained',
+                'compare' => '!='
+            ),
+            // Exclude Live
+            array(
+                'relation' => 'OR',
+                array(
+                    'key'     => 'big_picture_stage',
+                    'value'   => 'Live',
+                    'compare' => '!='
+                ),
+                array(
+                    'key'     => 'big_picture_stage',
+                    'compare' => 'NOT EXISTS'
+                )
+            )
+        );
+    }
+
+    // Query the database
+    $q = new WP_Query( $args );
 
     // --- MAP VALUES TO LABELS ---
-    // This array maps the DB value to the Full Text Label
     $stage_map = [
         'Working'                => '2. Working on getting commitment',
         'Shop Ownership'         => '2b. Shop ownership changing hands, on pause',
@@ -95,6 +139,12 @@ function show_crm_dashboard() {
         'Signed'                 => '4. Signed',
         'Archive'                => 'Archive'
     ];
+    
+    // Helper for Tab Styling
+    $tab_style = "display:inline-block; padding-bottom:15px; margin-right:20px; font-weight:600; text-decoration:none; transition: color 0.2s;";
+    function get_ts($is_active) {
+        return $is_active ? "color:#000; border-bottom:2px solid #000;" : "color:#888; border-bottom:2px solid transparent;";
+    }
 
     ob_start(); 
     ?>
@@ -107,9 +157,11 @@ function show_crm_dashboard() {
 				<a href="/add-new-entry/" style="padding:10px 0; text-decoration:none; border-radius:6px; font-weight:500; font-size:22px;">Add New Entry</a>
 			</div>
 
-        <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0;">
-            <a href="/crm/" style="display:inline-block; padding-bottom:15px; margin-right:20px; font-weight:600; text-decoration:none; color:<?php echo ($view=='active')?'#000':'#888'; ?>; border-bottom:2px solid <?php echo ($view=='active')?'#000':'transparent'; ?>;">Active Entries</a>
-            <a href="/crm/?view=archived" style="display:inline-block; padding-bottom:15px; font-weight:600; text-decoration:none; color:<?php echo ($view=='archived')?'#000':'#888'; ?>; border-bottom:2px solid <?php echo ($view=='archived')?'#000':'transparent'; ?>;">Archived</a>
+        <div style="margin-bottom:20px; border-bottom:2px solid #f0f0f0; white-space: nowrap; overflow-x:auto;">
+            <a href="/crm/" style="<?php echo $tab_style . get_ts($view=='active'); ?>">Active Entries</a>
+            <a href="/crm/?view=live" style="<?php echo $tab_style . get_ts($view=='live'); ?>">Live</a>
+            <a href="/crm/?view=committed" style="<?php echo $tab_style . get_ts($view=='committed'); ?>">Committed, Not Yet Signed.</a>
+            <a href="/crm/?view=archived" style="<?php echo $tab_style . get_ts($view=='archived'); ?>">Archived</a>
         </div>
 
         <table style="width:100%; border-collapse:collapse; min-width: 900px;">
@@ -175,7 +227,7 @@ function show_crm_dashboard() {
                 
                 <td style="padding:5px; font-weight:600;">
     <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; white-space:nowrap;">
-        <?php if ($view=='active'): ?>
+        <?php if ($view != 'archived'): ?>
             <a href="/add-new-entry/?entry_id=<?php echo $id; ?>" style="color:#000; text-decoration:none; font-size: 11px;">Edit</a>
             
             <span style="color:#ddd;">|</span>
@@ -1012,3 +1064,4 @@ function show_crm_form() {
 // INCLUDE EXTERNAL FEATURES
 // =========================================================================
 require_once get_stylesheet_directory() . '/deck.php';
+require_once get_stylesheet_directory() . '/agreement.php';
