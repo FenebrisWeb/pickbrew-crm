@@ -418,12 +418,15 @@ function show_crm_form() {
             $status_msg = $mail_sent ? 'success' : 'mail_error';
 
             // =================================================================
-            // E. CLIENT EMAILS (Mockup & Credentials Separated)
+            // E. CLIENT EMAILS
             // =================================================================
             
             $client_to = sanitize_email($_POST['email']);
             $client_cc = isset($_POST['email_cc']) ? sanitize_email($_POST['email_cc']) : '';
+            $contact_fname = isset($_POST['contact_first_name']) ? sanitize_text_field($_POST['contact_first_name']) : 'Friend';
+
             $client_headers = array();
+            $client_headers[] = 'Content-Type: text/plain; charset=UTF-8'; // Simple text for these
             if ( !empty($client_cc) ) {
                 $client_headers[] = 'Cc: ' . $client_cc;
             }
@@ -456,7 +459,7 @@ function show_crm_form() {
                 wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
             }
 
-            // --- E2. Credentials Email (Optional, Separate) ---
+            // --- E2. Credentials Email (Optional) ---
             if ( isset($_POST['send_creds_check']) && $_POST['send_creds_check']=='yes' ) {
                 
                 $u = isset($_POST['client_username']) ? sanitize_text_field($_POST['client_username']) : '';
@@ -466,6 +469,51 @@ function show_crm_form() {
                     $msg_body = "Hello,\n\nHere are your login details:\n\nUser: $u\nPass: $pw\n\nPlease keep these credentials safe.";
                     wp_mail( $client_to, "Your Login Credentials", $msg_body, $client_headers );
                 }
+            }
+
+            // --- E3. Followup Email (NEW) ---
+            if ( isset($_POST['send_followup_check']) && $_POST['send_followup_check']=='yes' ) {
+                
+                $f_subject = "Checking in - " . $title; 
+                $f_msg  = "Hi $contact_fname,\n\n";
+                $f_msg .= "I hope you are having a great week!\n\n";
+                $f_msg .= "I just wanted to follow up regarding your agreement and app setup. Do you have any questions or need any assistance from our side?\n\n";
+                $f_msg .= "We are looking forward to getting everything live for you.\n\n";
+                $f_msg .= "Best,\nThe PickBrew Team";
+
+                // Send to Client
+                wp_mail( $client_to, $f_subject, $f_msg, $client_headers );
+
+                // Notification to Admin
+                $a_sub = "Action: Followup Email Sent to $title";
+                $a_msg = "Hello Admin,<br><br>A <strong>Followup Email</strong> was successfully sent to the client.<br><br>";
+                $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
+                $a_msg .= "<strong>CC:</strong> $client_cc <br><br>";
+                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>$f_msg</pre>";
+                
+                wp_mail( $admin_emails, $a_sub, $a_msg, $headers );
+            }
+
+            // --- E4. Thanksgiving Email (NEW) ---
+            if ( isset($_POST['send_thanksgiving_check']) && $_POST['send_thanksgiving_check']=='yes' ) {
+                
+                $t_subject = "Happy Thanksgiving from PickBrew!";
+                $t_msg  = "Hi $contact_fname,\n\n";
+                $t_msg .= "Wishing you a wonderful Thanksgiving filled with joy and gratitude.\n\n";
+                $t_msg .= "We really appreciate the opportunity to work with you and the team at $title.\n\n";
+                $t_msg .= "Warm regards,\nThe PickBrew Team";
+
+                // Send to Client
+                wp_mail( $client_to, $t_subject, $t_msg, $client_headers );
+
+                // Notification to Admin
+                $a_sub = "Action: Thanksgiving Email Sent to $title";
+                $a_msg = "Hello Admin,<br><br>A <strong>Thanksgiving Email</strong> was successfully sent to the client.<br><br>";
+                $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
+                $a_msg .= "<strong>CC:</strong> $client_cc <br><br>";
+                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>$t_msg</pre>";
+                
+                wp_mail( $admin_emails, $a_sub, $a_msg, $headers );
             }
             
             // REDIRECTION LOGIC UPDATED
@@ -805,6 +853,20 @@ function show_crm_form() {
                     <div><label class="crm-label">Password</label><input type="text" name="client_password" class="crm-input" value="<?php echo $gv('client_password',$db); ?>"></div>
                 </div>
             </div>
+        </div>
+
+        <div class="mockup-box" style="margin-top:20px; border-color:#d1e7dd; background:#f0f9eb;">
+            <label style="font-weight:700; cursor:pointer;">
+                <input type="checkbox" name="send_followup_check" value="yes" style="transform:scale(1.3); margin-right:10px;"> 
+                Send Followups Email
+            </label>
+        </div>
+
+        <div class="mockup-box" style="margin-top:20px; border-color:#ffecb5; background:#fff3cd;">
+            <label style="font-weight:700; cursor:pointer;">
+                <input type="checkbox" name="send_thanksgiving_check" value="yes" style="transform:scale(1.3); margin-right:10px;"> 
+                Send Thanksgiving Mail
+            </label>
         </div>
 
         <div style="height:1px; background:#eee; margin:30px 0;"></div>
