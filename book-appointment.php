@@ -1,11 +1,12 @@
 <?php
 /* =========================================================================
-   PICKBREW APPOINTMENT SYSTEM (Fixed Icon Layout)
+   PICKBREW APPOINTMENT SYSTEM (Management Features Enabled)
    Shortcode: [pickbrew_appointment]
    Features: 
-   1. UI matches Espressly/Calendly style (Date Strip > Time > Form)
-   2. Stores data in Custom Post Type 'booking_entry'
-   3. CSV Export Feature in Admin
+   1. UI matches Espressly/Calendly style
+   2. Stores data in 'booking_entry'
+   3. Full Admin Management (Edit, Delete, Trash)
+   4. CSV Export
    ========================================================================= */
 
 /* -------------------------------------------------------------------------
@@ -17,15 +18,25 @@ add_action('init', 'register_booking_cpt');
 function register_booking_cpt() {
     register_post_type('booking_entry', array(
         'labels' => array(
-            'name' => 'Appointments',
-            'singular_name' => 'Appointment',
-            'menu_name' => 'Bookings'
+            'name'               => 'Appointments',
+            'singular_name'      => 'Appointment',
+            'menu_name'          => 'Bookings',
+            'add_new'            => 'Add Booking',
+            'add_new_item'       => 'Add New Appointment',
+            'edit_item'          => 'Edit Appointment',
+            'new_item'           => 'New Appointment',
+            'view_item'          => 'View Appointment',
+            'search_items'       => 'Search Bookings',
+            'not_found'          => 'No bookings found',
+            'not_found_in_trash' => 'No bookings found in Trash',
         ),
-        'public' => false,
-        'show_ui' => true,
-        'menu_icon' => 'dashicons-calendar-alt',
-        'supports' => array('title', 'custom-fields'),
-        'capabilities' => array('create_posts' => false) // Admin only view
+        'public'        => false,  // Not visible on frontend URL
+        'show_ui'       => true,   // Visible in Admin
+        'show_in_menu'  => true,
+        'menu_icon'     => 'dashicons-calendar-alt',
+        'supports'      => array('title', 'editor', 'custom-fields'), // Added 'editor' so you can edit notes easily
+        'capability_type' => 'post', // Standard permissions (Edit, Delete, etc.)
+        'map_meta_cap'    => true,
     ));
 }
 
@@ -123,6 +134,7 @@ function render_pickbrew_appointment_ui() {
         // Create Post
         $pid = wp_insert_post(array(
             'post_title' => $name,
+            'post_content' => $notes, // Save notes to main content area for easy editing
             'post_type' => 'booking_entry',
             'post_status' => 'publish'
         ));
@@ -136,7 +148,7 @@ function render_pickbrew_appointment_ui() {
             update_post_meta($pid, 'meeting_timezone', $tz);
 
             // Send Email to Admin
-            $admin_to = 'amit@pickbrew.com'; // Add more separated by comma
+            $admin_to = 'aryan@pickbrew.com'; 
             $subject = "New Booking: $name - $date @ $time";
             $message = "New App Review Call Booked.\n\nName: $name\nDate: $date\nTime: $time\nTimezone: $tz\nEmail: $email\nPhone: $phone\nNotes: $notes";
             wp_mail($admin_to, $subject, $message);
@@ -203,29 +215,24 @@ function render_pickbrew_appointment_ui() {
         .form-header { font-size: 22px; margin-bottom: 10px; font-weight: 600; }
         .form-sub { font-size: 14px; color: #666; margin-bottom: 30px; }
         
-        /* Updated Input Field Styles */
-        .pb-field { 
-            margin-bottom: 20px; 
-            position: relative; 
-            width: 100%;
-        }
+        .pb-field { margin-bottom: 20px; position: relative; width: 100%; }
         
         /* Icon Positioning */
         .pb-wrapper .pb-field i { 
             position: absolute; 
             left: 15px; 
             top: 50%; 
-            transform: translateY(-50%); /* Perfectly vertically centered */
+            transform: translateY(-50%); 
             color: #888; 
             font-size: 16px; 
             z-index: 10;
-            pointer-events: none; /* Allows click-through to input */
+            pointer-events: none;
         }
         
         /* Input Padding Forced */
         .pb-wrapper .pb-input { 
             width: 100%; 
-            padding: 14px 14px 14px 45px !important; /* Force padding-left so text doesn't hit icon */
+            padding: 14px 14px 14px 45px !important; 
             border: 1px solid #ddd; 
             background: #f9f9f9; 
             border-radius: 4px; 
@@ -235,11 +242,7 @@ function render_pickbrew_appointment_ui() {
             height: auto;
         }
         
-        .pb-wrapper .pb-input:focus { 
-            background: #fff; 
-            border-color: #8dc63f; 
-            outline: none; 
-        }
+        .pb-wrapper .pb-input:focus { background: #fff; border-color: #8dc63f; outline: none; }
 
         .pb-label { display: none; } 
 
