@@ -2,7 +2,7 @@
 /* =========================================================================
    AGREEMENT SYSTEM (agreement.php)
    Shortcode: [agreement_form]
-   UI: Matches CRM Entry Form (Inter font, Grid layout, Styled Inputs)
+   Fix: Changed URL slug to 'view-agreement' to prevent 404 errors.
    ========================================================================= */
 
 // 1. Register 'Agreement' Post Type
@@ -18,7 +18,8 @@ function register_pickbrew_agreement_cpt() {
         'has_archive' => false,
         'supports'    => array('title', 'editor', 'custom-fields'),
         'menu_icon'   => 'dashicons-media-document',
-        'rewrite'     => array('slug' => 'agreement'), 
+        // --- FIX: Unique slug to prevent conflicts with the form page ---
+        'rewrite'     => array('slug' => 'view-agreement'), 
     );
     register_post_type('agreement', $args);
 }
@@ -28,14 +29,12 @@ add_action('init', 'register_pickbrew_agreement_cpt');
 add_shortcode('agreement_form', 'render_agreement_form');
 
 function render_agreement_form() {
-    // Security check
     if (!is_user_logged_in()) {
         return '<p style="text-align:center; padding:50px; font-family:\'Inter\', sans-serif;">Please <a href="/wp-login.php">log in</a> to create an agreement.</p>';
     }
 
     $message = '';
 
-    // --- FORM SUBMISSION HANDLING ---
     if (isset($_POST['submit_agreement_bttn'])) {
         
         // A. Sanitize Data
@@ -48,8 +47,8 @@ function render_agreement_form() {
         $cap       = sanitize_text_field($_POST['monthly_cap']);
         $loc_type  = sanitize_text_field($_POST['location_type']);
         $pos       = isset($_POST['pos_system']) ? sanitize_text_field($_POST['pos_system']) : '';
-
-        // Additional Deal Fields
+        
+        // Deal specific inputs
         $comm_rate = isset($_POST['commission_rate_val']) ? sanitize_text_field($_POST['commission_rate_val']) : '';
         $order_rate = isset($_POST['proposed_rate_val']) ? sanitize_text_field($_POST['proposed_rate_val']) : '';
         $flat_fee  = isset($_POST['monthly_fee_val']) ? sanitize_text_field($_POST['monthly_fee_val']) : '';
@@ -58,25 +57,30 @@ function render_agreement_form() {
         $password = wp_generate_password(8, false); 
         $post_title = $merchant . ' - Agreement';
 
-        // C. Create the Content
-        $html_content  = "<h2>Agreement for $merchant</h2>";
-        $html_content .= "<p><strong>Date:</strong> " . date('F j, Y') . "<br>";
-        $html_content .= "<strong>Prepared By:</strong> $creator</p><hr>";
-        $html_content .= "<h3>Agreement Terms</h3><ul>";
-        
-        // Format Deal Display
-        $display_deal = $deal;
-        if($deal == 'Commission') $display_deal .= " ($comm_rate)";
-        if($deal == 'Daily_2') $display_deal .= " ($order_rate per order)";
-        if($deal == 'Flat') $display_deal .= " ($$flat_fee / month)";
+        // C. GENERATE AGREEMENT CONTENT
+        $html_content = '
+        <div style="font-family:\'Inter\', sans-serif; line-height:1.6; color:#333;">
+            <h2 style="text-align:center; margin-bottom:30px;">Merchant Terms and Conditions for the PickBrew Platform</h2>
+            
+            <p>PickBrew, Inc. (“PickBrew”, “us”, “our”) will provide <strong>'. $merchant .'</strong> (“you”, “your”, or “'. $merchant .'”) with a mobile application (also “Mobile App”) subject to the terms outlined in the following PickBrew Merchant Terms and Conditions (“Merchant Terms”).</p>
 
-        $html_content .= "<li><strong>Deal Type:</strong> $display_deal</li>";
-        $html_content .= "<li><strong>Monthly Cap:</strong> $cap</li>";
-        $html_content .= "<li><strong>Location Type:</strong> $loc_type</li>";
-        if($pos) $html_content .= "<li><strong>POS System:</strong> $pos</li>";
-        $html_content .= "</ul>";
-        $html_content .= "<hr><h3>Official Agreement</h3>";
-        $html_content .= "<p>[Insert your full legal agreement text here. This content is protected.]</p>";
+            <p><strong>6. PickBrew Licensing Fees, Payment Terms, and Taxes:</strong><br>
+            PickBrew will not charge any fees for design, development, or ongoing management of the '. $merchant .' Mobile App.</p>
+            
+            <p><strong>Licensing Fees:</strong><br>
+            '. $cap .', payable monthly.</p>
+
+            <p><strong>Invoicing from PickBrew, Inc. to '. $merchant .':</strong><br>
+            Invoicing cycle: Monthly If there is an outstanding balance.</p>
+            
+            <hr style="margin:30px 0; border:0; border-top:1px solid #eee;">
+            <p style="font-size:12px; color:#666;">
+                <strong>Deal Structure:</strong> '. $deal .' '. ($comm_rate ? "($comm_rate)" : "") .' '. ($order_rate ? "($order_rate/order)" : "") .' '. ($flat_fee ? "($$flat_fee/mo)" : "") .'<br>
+                <strong>Location:</strong> '. $loc_type .' '. ($pos ? "($pos)" : "") .' <br>
+                <strong>Date Generated:</strong> '. date('F j, Y') .' by '. $creator .'
+            </p>
+        </div>
+        ';
 
         // D. Insert Post
         $post_id = wp_insert_post(array(
@@ -121,9 +125,11 @@ function render_agreement_form() {
     echo $message;
     ?>
     <style>
-        /* Exact CRM Entry Form CSS */
         .crm-wrap { font-family:'Inter', sans-serif; background:#fff; max-width:850px; margin:40px auto; padding:50px; border:1px solid #e0e0e0; box-shadow:0 5px 20px rgba(0,0,0,0.03); }
-        .crm-title { font-size:26px; font-weight:700; margin-bottom:40px; color:#111; }
+        .crm-title { font-size:26px; font-weight:700; margin-bottom:10px; color:#111; }
+        .crm-link-box { margin-bottom: 40px; }
+        .crm-link-box a { color: #007cba; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .crm-link-box a:hover { text-decoration: underline; }
         .crm-row { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:25px; }
         .crm-full { grid-column:1 / -1; margin-bottom:25px; }
         .crm-label { display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
@@ -136,10 +142,10 @@ function render_agreement_form() {
     </style>
 
     <div class="crm-wrap">
-        <h2 class="crm-title">Generate Agreement</h2>
+        <h2 class="crm-title">Agreement</h2>
+        <div class="crm-link-box"><a href="/crm/">&larr; Go to CRM</a></div>
         
         <form method="post" id="agreementForm">
-            
             <div class="crm-full">
                 <label class="crm-label">Created By *</label>
                 <div class="radio-group" style="margin-top:10px;">
@@ -151,19 +157,13 @@ function render_agreement_form() {
             </div>
 
             <div class="crm-full">
-                <div>
-                    <label class="crm-label">Merchant Name *</label>
-                    <input type="text" name="merchant_name" class="crm-input" required>
-                </div>
+                <label class="crm-label">Merchant Name *</label>
+                <input type="text" name="merchant_name" class="crm-input" required>
             </div>
-			
-			<div class="crm-full">
-                <div>
-                    <label class="crm-label">Merchant Phone *</label>
-                    <input type="text" name="merchant_phone" class="crm-input" placeholder="(555)-555-5555" required>
-                </div>
+            <div class="crm-full">
+                <label class="crm-label">Merchant Phone *</label>
+                <input type="text" name="merchant_phone" class="crm-input" placeholder="(555)-555-5555" required>
             </div>
-
             <div class="crm-full">
                 <label class="crm-label">Merchant Email *</label>
                 <input type="email" name="merchant_email" class="crm-input" required>
@@ -196,12 +196,10 @@ function render_agreement_form() {
                     <label class="crm-label">Proposed Commission Rate</label>
                     <input type="text" name="commission_rate_val" class="crm-input" value="6%">
                 </div>
-
                 <div id="box_daily" class="conditional-box">
                     <label class="crm-label">Proposed Per Order Fee</label>
                     <input type="text" name="proposed_rate_val" class="crm-input" value=".25">
                 </div>
-
                 <div id="box_flat" class="conditional-box">
                     <label class="crm-label">Monthly Fee</label>
                     <select name="monthly_fee_val" class="crm-select">
@@ -272,13 +270,10 @@ function render_agreement_form() {
         document.getElementById('box_daily').style.display = (type===2) ? 'block' : 'none';
         document.getElementById('box_flat').style.display = (type===3) ? 'block' : 'none';
     }
-
     function togglePos() {
         var loc = document.getElementById('locType').value;
         document.getElementById('posBox').style.display = (loc === 'POS Integrated') ? 'block' : 'none';
     }
-    
-    // Formatting Phone Number
     document.querySelector('input[name="merchant_phone"]').addEventListener('input', function (e) {
         let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
         e.target.value = !x[2] ? x[1] : '(' + x[1] + ')-' + x[2] + (x[3] ? '-' + x[3] : '');
