@@ -2,7 +2,7 @@
 /* =========================================================================
    AGREEMENT SYSTEM (agreement.php)
    Shortcode: [agreement_form]
-   Fix: Changed URL slug to 'view-agreement' to prevent 404 errors.
+   Features: Creation Form, Signature (Draw/Type), Password Protection
    ========================================================================= */
 
 // 1. Register 'Agreement' Post Type
@@ -18,14 +18,13 @@ function register_pickbrew_agreement_cpt() {
         'has_archive' => false,
         'supports'    => array('title', 'editor', 'custom-fields'),
         'menu_icon'   => 'dashicons-media-document',
-        // --- FIX: Unique slug to prevent conflicts with the form page ---
         'rewrite'     => array('slug' => 'view-agreement'), 
     );
     register_post_type('agreement', $args);
 }
 add_action('init', 'register_pickbrew_agreement_cpt');
 
-// 2. Shortcode to Display the Form
+// 2. Shortcode to Display the CREATION Form
 add_shortcode('agreement_form', 'render_agreement_form');
 
 function render_agreement_form() {
@@ -48,13 +47,14 @@ function render_agreement_form() {
         $loc_type  = sanitize_text_field($_POST['location_type']);
         $pos       = isset($_POST['pos_system']) ? sanitize_text_field($_POST['pos_system']) : '';
         
-        // Deal specific inputs
         $comm_rate = isset($_POST['commission_rate_val']) ? sanitize_text_field($_POST['commission_rate_val']) : '';
         $order_rate = isset($_POST['proposed_rate_val']) ? sanitize_text_field($_POST['proposed_rate_val']) : '';
         $flat_fee  = isset($_POST['monthly_fee_val']) ? sanitize_text_field($_POST['monthly_fee_val']) : '';
 
         // B. Generate Password & Title
-        $password = wp_generate_password(8, false); 
+        // $password = wp_generate_password(8, false); // --- PREVIOUS: Unique Password (Commented Out) ---
+        $password = 'yourapp'; // --- NEW: Static Password ---
+        
         $post_title = $merchant . ' - Agreement';
 
         // C. GENERATE AGREEMENT CONTENT
@@ -108,7 +108,6 @@ function render_agreement_form() {
             $msg .= "<strong>Password:</strong> <span style='background:#eee; padding:5px; font-weight:bold;'>$password</span><br><br>";
             $msg .= "Click to view the AGREEMENT: <a href='$link'>$link</a><br><br>";
             $msg .= "Sincerely,<br>The team at PickBrew<br>PickBrew.com<br>";
-            $msg .= "Feel free to schedule a call with us <a href='#'>HERE</a>";
             
             wp_mail($email, "Agreement: $merchant", $msg, $headers);
 
@@ -142,7 +141,7 @@ function render_agreement_form() {
     </style>
 
     <div class="crm-wrap">
-        <h2 class="crm-title">Agreement</h2>
+        <h2 class="crm-title">Create Agreement</h2>
         <div class="crm-link-box"><a href="/crm/">&larr; Go to CRM</a></div>
         
         <form method="post" id="agreementForm">
@@ -155,29 +154,16 @@ function render_agreement_form() {
                     <label><input type="radio" name="created_by" value="Amit"> Amit</label>
                 </div>
             </div>
-
-            <div class="crm-full">
-                <label class="crm-label">Merchant Name *</label>
-                <input type="text" name="merchant_name" class="crm-input" required>
-            </div>
-            <div class="crm-full">
-                <label class="crm-label">Merchant Phone *</label>
-                <input type="text" name="merchant_phone" class="crm-input" placeholder="(555)-555-5555" required>
-            </div>
-            <div class="crm-full">
-                <label class="crm-label">Merchant Email *</label>
-                <input type="email" name="merchant_email" class="crm-input" required>
-            </div>
+            <div class="crm-full"><label class="crm-label">Merchant Name *</label><input type="text" name="merchant_name" class="crm-input" required></div>
+            <div class="crm-full"><label class="crm-label">Merchant Phone *</label><input type="text" name="merchant_phone" class="crm-input" placeholder="(555)-555-5555" required></div>
+            <div class="crm-full"><label class="crm-label">Merchant Email *</label><input type="email" name="merchant_email" class="crm-input" required></div>
 
             <div class="crm-full">
                 <label class="crm-label">Agreement Status *</label>
                 <select name="agreement_status" class="crm-select" required>
-                    <option value="">Select Status</option>
                     <option value="Agreement Sent Initially">1. Agreement Sent Initially</option>
                     <option value="Agreement sent/not signed">2. Agreement sent / not signed yet</option>
                     <option value="Commited">3. Commited / Not Signed yet</option>
-                    <option value="Signed">4. Signed</option>
-                    <option value="Archive">5. Archive</option>
                 </select>
             </div>
 
@@ -187,27 +173,16 @@ function render_agreement_form() {
                 <label class="crm-label">Deal Type Proposed *</label>
                 <div class="radio-group" style="margin-top:10px;">
                     <label><input type="radio" name="deal_type" value="Commission" onclick="toggleDeal(1)" required> Commission</label><br>
-                    <label><input type="radio" name="deal_type" value="Daily_1" onclick="toggleDeal(0)"> $4-$10 Pricing (Daily per location)</label><br>
-                    <label><input type="radio" name="deal_type" value="Flat" onclick="toggleDeal(3)"> Flat Monthly (per location)</label><br>
+                    <label><input type="radio" name="deal_type" value="Daily_1" onclick="toggleDeal(0)"> $4-$10 Pricing (Daily)</label><br>
+                    <label><input type="radio" name="deal_type" value="Flat" onclick="toggleDeal(3)"> Flat Monthly</label><br>
                     <label><input type="radio" name="deal_type" value="Daily_2" onclick="toggleDeal(2)"> Per Order</label>
                 </div>
                 
-                <div id="box_comm" class="conditional-box">
-                    <label class="crm-label">Proposed Commission Rate</label>
-                    <input type="text" name="commission_rate_val" class="crm-input" value="6%">
-                </div>
-                <div id="box_daily" class="conditional-box">
-                    <label class="crm-label">Proposed Per Order Fee</label>
-                    <input type="text" name="proposed_rate_val" class="crm-input" value=".25">
-                </div>
-                <div id="box_flat" class="conditional-box">
-                    <label class="crm-label">Monthly Fee</label>
+                <div id="box_comm" class="conditional-box"><label class="crm-label">Commission Rate</label><input type="text" name="commission_rate_val" class="crm-input" value="6%"></div>
+                <div id="box_daily" class="conditional-box"><label class="crm-label">Per Order Fee</label><input type="text" name="proposed_rate_val" class="crm-input" value=".25"></div>
+                <div id="box_flat" class="conditional-box"><label class="crm-label">Monthly Fee</label>
                     <select name="monthly_fee_val" class="crm-select">
-                        <option value="299.99">$299.99</option>
-                        <option value="349.99">$349.99</option>
-                        <option value="399.99">$399.99</option>
-                        <option value="499.99">$499.99</option>
-                        <option value="599.99">$599.99</option>
+                        <option value="299.99">$299.99</option><option value="399.99">$399.99</option><option value="499.99">$499.99</option>
                     </select>
                 </div>
             </div>
@@ -217,13 +192,8 @@ function render_agreement_form() {
                 <select name="monthly_cap" class="crm-select" required>
                     <option value="">Select Cap Option</option>
                     <?php 
-                    $rates = [5, 6, 7];
-                    $prices = [249.99, 299.99, 349.99, 379.99];
-                    foreach($rates as $r) {
-                        foreach($prices as $p) {
-                            echo "<option value='{$r}%, capped at \${$p}/month'>{$r}%, capped at \${$p}/month, per location</option>";
-                        }
-                    }
+                    $rates = [5, 6, 7]; $prices = [249.99, 299.99, 349.99];
+                    foreach($rates as $r) { foreach($prices as $p) { echo "<option value='{$r}%, capped at \${$p}/month'>{$r}%, capped at \${$p}/month</option>"; } }
                     ?>
                 </select>
             </div>
@@ -234,21 +204,10 @@ function render_agreement_form() {
                     <option value="Freestanding">Freestanding</option>
                     <option value="POS Integrated">POS Integrated</option>
                 </select>
-
                 <div id="posBox" class="conditional-box">
                     <label class="crm-label">POS System *</label>
                     <select name="pos_system" class="crm-select">
-                        <option value="Square">Square</option>
-                        <option value="Toast">Toast</option>
-                        <option value="Clover">Clover</option>
-                        <option value="Linga">Linga</option>
-                        <option value="Upserve">Upserve</option>
-                        <option value="DripOS">DripOS</option>
-                        <option value="DiamondScan">DiamondScan</option>
-                        <option value="Shopkeep">Shopkeep</option>
-                        <option value="Katalyst">Katalyst</option>
-                        <option value="AlphaPOS">AlphaPOS</option>
-                        <option value="Other">Other</option>
+                        <option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Other">Other</option>
                     </select>
                 </div>
             </div>
@@ -260,7 +219,7 @@ function render_agreement_form() {
                 </label>
             </div>
 
-            <button type="submit" name="submit_agreement_bttn" class="sub-btn">Send Agreement</button>
+            <button type="submit" name="submit_agreement_bttn" class="sub-btn">Submit</button>
         </form>
     </div>
 
@@ -274,6 +233,8 @@ function render_agreement_form() {
         var loc = document.getElementById('locType').value;
         document.getElementById('posBox').style.display = (loc === 'POS Integrated') ? 'block' : 'none';
     }
+    
+    // Auto-format Phone Number
     document.querySelector('input[name="merchant_phone"]').addEventListener('input', function (e) {
         let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
         e.target.value = !x[2] ? x[1] : '(' + x[1] + ')-' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -282,3 +243,313 @@ function render_agreement_form() {
     <?php
     return ob_get_clean();
 }
+
+// 3. CUSTOMIZE PASSWORD FORM (Hides Theme Header & Matches Screenshot)
+add_filter( 'the_password_form', 'pickbrew_custom_password_form' );
+function pickbrew_custom_password_form() {
+    global $post;
+    $label = 'pwbox-'.( empty( $post->ID ) ? rand() : $post->ID );
+    
+    $output = '
+    <style>
+        /* 1. HIDE THEME HEADER (Title & Meta) on Agreement Pages */
+        .single-agreement .entry-header,
+        .single-agreement .post-meta, 
+        .single-agreement .ast-single-post-order {
+            display: none !important;
+        }
+
+        /* 2. STYLE THE PASSWORD FORM (Matches Screenshot) */
+        .pw-form-container { 
+            font-family: sans-serif; 
+            max-width: 600px; 
+            margin: 80px auto; /* More top margin since header is gone */
+            padding: 20px; 
+            text-align: left; 
+        }
+        .pw-form-title { 
+            font-size: 24px; 
+            margin-bottom: 20px; 
+            font-weight: 400; 
+            color: #333; 
+        }
+        .pw-text { 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            color: #333; 
+        }
+        .pw-label {
+            margin-right: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+        .pw-input { 
+            border: 1px solid #7e8993; 
+            padding: 2px 5px; 
+            width: 180px; 
+            height: 30px; 
+            margin-right: 5px; 
+            border-radius: 0;
+        }
+        .pw-submit { 
+            background: grey; 
+            color: #000000;
+			margin-top: 15px;
+        }
+        .pw-submit:hover { 
+            background: #eee; 
+            border-color: #999;
+        }
+    </style>
+    
+    <div class="pw-form-container">
+        <h2 class="pw-form-title">Protected: Agreement Form</h2>
+        <p class="pw-text">This content is password-protected. To view it, please enter the password below.</p>
+        
+        <form action="' . esc_url( site_url( 'wp-login.php?action=postpass', 'login_post' ) ) . '" method="post">
+            <span class="pw-label">Password:</span>
+            <input name="post_password" id="' . $label . '" type="password" class="pw-input" />
+            <input type="submit" name="Submit" class="pw-submit" value="Enter" />
+        </form>
+    </div>
+    ';
+    return $output;
+}
+
+
+// 4. SIGNATURE LOGIC (Inject form into Content)
+add_filter('the_content', 'append_signature_section');
+function append_signature_section($content) {
+    // Only show on Agreement posts, only if password entered
+    if (!is_singular('agreement') || post_password_required()) {
+        return $content;
+    }
+
+    // Check if already signed
+    $signed_date = get_post_meta(get_the_ID(), 'signed_date', true);
+    if($signed_date) {
+        $sig_img = get_post_meta(get_the_ID(), 'signature_image', true);
+        $sig_html = '';
+        if($sig_img && strpos($sig_img, 'data:image') === 0) {
+            $sig_html = '<div style="margin-top:10px;"><img src="'.$sig_img.'" style="max-height:80px; border-bottom:1px solid #ccc;"></div>';
+        } else {
+            $sig_html = '<div style="font-family:\'Dancing Script\', cursive; font-size:24px; border-bottom:1px solid #ccc; display:inline-block; padding:0 20px;">'.$sig_img.'</div>';
+        }
+
+        $box = '
+        <div style="background:#f0f9eb; border:1px solid #c3e6cb; color:#155724; padding:20px; margin-top:40px; border-radius:4px; font-family:sans-serif;">
+            <h3 style="margin:0 0 10px 0;">✅ Agreement Signed</h3>
+            <p style="margin:0;">This document was signed on <strong>'.$signed_date.'</strong>.</p>
+            '.$sig_html.'
+        </div>';
+        return $content . $box;
+    }
+
+    // Load Font for "Type" Signature
+    $font_import = '<style>@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap"); 
+    .sig-btn { background:none; border:none; cursor:pointer; padding:5px; opacity:0.6; }
+    .sig-btn.active { opacity:1; color:#007cba; }
+    .sig-canvas { border:1px solid #ccc; width:100%; height:150px; background:#fff; cursor:crosshair; touch-action: none; }
+    .sig-input-type { width:100%; border:none; border-bottom:1px solid #ccc; font-family:"Dancing Script", cursive; font-size:32px; padding:10px; outline:none; background:transparent; }
+    .sig-label { font-weight:700; display:block; margin-bottom:8px; font-size:14px; color:#444; }
+    .sign-wrap { max-width:600px; margin-top:50px; background:#fafafa; padding:30px; border-radius:8px; border:1px solid #eee; }
+    </style>';
+
+    // Build Form HTML
+    ob_start();
+    ?>
+    <div class="sign-wrap" id="signArea">
+        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Acceptance</h3>
+        <p style="font-size:13px; color:#666;">By signing below, you agree to the terms outlined above.</p>
+        
+        <form method="post" id="signForm">
+            <input type="hidden" name="agreement_id" value="<?php echo get_the_ID(); ?>">
+            
+            <div style="margin-bottom:20px;">
+                <label class="sig-label">Name *</label>
+                <input type="text" name="signer_name" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <label class="sig-label" style="margin:0;">Signature *</label>
+                    <div>
+                        <button type="button" class="sig-btn active" id="btnDraw" onclick="setSigMode('draw')">Draw ✏️</button>
+                        <button type="button" class="sig-btn" id="btnType" onclick="setSigMode('type')">Type ⌨️</button>
+                        <button type="button" style="font-size:11px; color:red; border:none; background:none; cursor:pointer; margin-left:10px;" onclick="clearSig()">Clear</button>
+                    </div>
+                </div>
+
+                <div style="background:#fff; border:1px solid #ddd; padding:10px; position:relative;">
+                    <div id="drawContainer">
+                        <canvas id="sigCanvas" width="500" height="150" class="sig-canvas"></canvas>
+                        <input type="hidden" name="sig_data_draw" id="sigDataDraw">
+                    </div>
+                    
+                    <div id="typeContainer" style="display:none; padding:40px 10px;">
+                        <input type="text" name="sig_data_type" class="sig-input-type" placeholder="Type your name here...">
+                    </div>
+                    
+                    <input type="hidden" name="sig_mode" id="sigMode" value="draw">
+                </div>
+            </div>
+
+            <div style="margin-bottom:25px;">
+                <label class="sig-label">Date</label>
+                <input type="text" id="dateField" disabled style="background:#f9f9f9; border:1px solid #eee; padding:10px; width:100%; color:#555;">
+                <input type="hidden" name="sign_date" id="dateHidden">
+            </div>
+
+            <button type="submit" name="submit_signature" class="sub-btn" onclick="return prepareSubmit()">Submit Agreement</button>
+        </form>
+    </div>
+
+    <script>
+    // 1. Auto Date
+    document.addEventListener("DOMContentLoaded", function() {
+        var d = new Date();
+        var dateStr = d.toLocaleDateString();
+        document.getElementById('dateField').value = dateStr;
+        document.getElementById('dateHidden').value = dateStr;
+        initCanvas();
+    });
+
+    // 2. Toggle Mode
+    function setSigMode(mode) {
+        document.getElementById('sigMode').value = mode;
+        if(mode === 'draw') {
+            document.getElementById('drawContainer').style.display = 'block';
+            document.getElementById('typeContainer').style.display = 'none';
+            document.getElementById('btnDraw').classList.add('active');
+            document.getElementById('btnType').classList.remove('active');
+        } else {
+            document.getElementById('drawContainer').style.display = 'none';
+            document.getElementById('typeContainer').style.display = 'block';
+            document.getElementById('btnDraw').classList.remove('active');
+            document.getElementById('btnType').classList.add('active');
+        }
+    }
+
+    // 3. Canvas Logic
+    var canvas, ctx, isDrawing = false;
+    function initCanvas() {
+        canvas = document.getElementById('sigCanvas');
+        if(!canvas) return;
+        ctx = canvas.getContext('2d');
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+
+        // Resize
+        var rect = canvas.parentNode.getBoundingClientRect();
+        canvas.width = rect.width;
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseout', stopDraw);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', function(e){ startDraw(e.touches[0]); e.preventDefault(); }, {passive: false});
+        canvas.addEventListener('touchmove', function(e){ draw(e.touches[0]); e.preventDefault(); }, {passive: false});
+        canvas.addEventListener('touchend', stopDraw);
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        var rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+    function draw(e) {
+        if(!isDrawing) return;
+        var rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+    }
+    function stopDraw() { isDrawing = false; }
+    
+    function clearSig() {
+        if(document.getElementById('sigMode').value === 'draw') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        } else {
+            document.querySelector('.sig-input-type').value = '';
+        }
+    }
+
+    function prepareSubmit() {
+        var mode = document.getElementById('sigMode').value;
+        if(mode === 'draw') {
+            // Check if canvas is empty (simplified check)
+            // Save data
+            document.getElementById('sigDataDraw').value = canvas.toDataURL();
+        }
+        return true;
+    }
+    </script>
+    <?php
+    $form_html = ob_get_clean();
+    return $content . $font_import . $form_html;
+}
+
+// 5. HANDLE SUBMISSION
+add_action('init', 'handle_agreement_signature_post');
+function handle_agreement_signature_post() {
+    if(isset($_POST['submit_signature']) && isset($_POST['agreement_id'])) {
+        
+        $post_id = intval($_POST['agreement_id']);
+        $name    = sanitize_text_field($_POST['signer_name']);
+        $date    = sanitize_text_field($_POST['sign_date']);
+        $mode    = $_POST['sig_mode'];
+        
+        $final_sig = '';
+        if($mode === 'draw') {
+            $final_sig = $_POST['sig_data_draw']; // Data URL
+        } else {
+            $final_sig = sanitize_text_field($_POST['sig_data_type']); // Text Name
+        }
+
+        // Save Meta
+        update_post_meta($post_id, 'agreement_signed', true);
+        update_post_meta($post_id, 'signed_date', $date);
+        update_post_meta($post_id, 'signer_name', $name);
+        update_post_meta($post_id, 'signature_image', $final_sig); 
+        
+        // Update Status to "Signed"
+        update_post_meta($post_id, 'agreement_status', 'Signed');
+
+        // --- EMAIL LOGIC UPDATED ---
+        
+        // 1. Define Recipients (Same as your CRM)
+        $admin_emails = array( 
+            'aryan@pickbrew.com', 
+            'amit.kumar@fenebrisindia.com' 
+        );
+
+        // 2. Prepare Subject & Message
+        $subject = "Agreement Signed: " . get_the_title($post_id);
+        $link = get_permalink($post_id); 
+        
+        $msg  = "Hello Admin,<br><br>";
+        $msg .= "The agreement for <strong>" . get_the_title($post_id) . "</strong> has been signed by the merchant.<br><br>";
+        $msg .= "<strong>Signer Name:</strong> $name<br>";
+        $msg .= "<strong>Date Signed:</strong> $date<br><br>";
+        $msg .= "You can view the signed agreement here (requires password): <br><a href='$link'>$link</a>";
+        
+        // 3. Set Headers (Important for delivery)
+        $domain = parse_url(get_site_url(), PHP_URL_HOST);
+        $sender_email = 'wordpress@' . $domain; // Default sender
+        
+        $headers = array();
+        $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        $headers[] = 'From: PickBrew Agreements <' . $sender_email . '>';
+
+        // 4. Send Email
+        wp_mail($admin_emails, $subject, $msg, $headers);
+
+        // Redirect to same page to show Success Message
+        wp_redirect(get_permalink($post_id));
+        exit;
+    }
+}
+?>
