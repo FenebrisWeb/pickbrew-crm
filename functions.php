@@ -430,6 +430,17 @@ function show_crm_form() {
             if ( !empty($client_cc) ) {
                 $client_headers[] = 'Cc: ' . $client_cc;
             }
+			
+			// =================================================================
+            // DEFINE SIGNATURE (Applied to all Client Emails)
+            // =================================================================
+            $signature  = "\n\nAryan Mamtora - Director\n";
+            $signature .= "Sales & Business Development\n";
+            $signature .= "Pickbrew\n";
+            $signature .= "aryan@pickbrew.com\n";
+            $signature .= "(559)227-1999\n";
+            $signature .= "pickbrew.com\n";
+            $signature .= "Click here to book a meeting - https://collective.pickbrew.com/book-an-appointment/";
 
             // --- E1. Mockup Email (Optional) ---
             if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
@@ -455,7 +466,9 @@ function show_crm_form() {
                     $msg_body .= "Please see the attached mockup image for your review.";
                 }
                 
-                // Note: No credentials sent here
+                // ADD SIGNATURE
+                $msg_body .= $signature;
+                
                 wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
             }
 
@@ -467,6 +480,10 @@ function show_crm_form() {
                 
                 if(!empty($u) || !empty($pw)) {
                     $msg_body = "Hello,\n\nHere are your login details:\n\nUser: $u\nPass: $pw\n\nPlease keep these credentials safe.";
+                    
+                    // ADD SIGNATURE
+                    $msg_body .= $signature;
+
                     wp_mail( $client_to, "Your Login Credentials", $msg_body, $client_headers );
                 }
             }
@@ -478,13 +495,15 @@ function show_crm_form() {
                 $f_msg  = "Hi $contact_fname,\n\n";
                 $f_msg .= "I hope you are having a great week!\n\n";
                 $f_msg .= "I just wanted to follow up regarding your agreement and app setup. Do you have any questions or need any assistance from our side?\n\n";
-                $f_msg .= "We are looking forward to getting everything live for you.\n\n";
-                $f_msg .= "Best,\nThe PickBrew Team";
+                $f_msg .= "We are looking forward to getting everything live for you.";
+                
+                // ADD SIGNATURE
+                $f_msg .= $signature;
 
                 // Send to Client
                 wp_mail( $client_to, $f_subject, $f_msg, $client_headers );
 
-                // Notification to Admin
+                // Notification to Admin (unchanged)
                 $a_sub = "Action: Followup Email Sent to $title";
                 $a_msg = "Hello Admin,<br><br>A <strong>Followup Email</strong> was successfully sent to the client.<br><br>";
                 $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
@@ -500,13 +519,15 @@ function show_crm_form() {
                 $t_subject = "Happy Thanksgiving from PickBrew!";
                 $t_msg  = "Hi $contact_fname,\n\n";
                 $t_msg .= "Wishing you a wonderful Thanksgiving filled with joy and gratitude.\n\n";
-                $t_msg .= "We really appreciate the opportunity to work with you and the team at $title.\n\n";
-                $t_msg .= "Warm regards,\nThe PickBrew Team";
+                $t_msg .= "We really appreciate the opportunity to work with you and the team at $title.";
+                
+                // ADD SIGNATURE
+                $t_msg .= $signature;
 
                 // Send to Client
                 wp_mail( $client_to, $t_subject, $t_msg, $client_headers );
 
-                // Notification to Admin
+                // Notification to Admin (unchanged)
                 $a_sub = "Action: Thanksgiving Email Sent to $title";
                 $a_msg = "Hello Admin,<br><br>A <strong>Thanksgiving Email</strong> was successfully sent to the client.<br><br>";
                 $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
@@ -1130,3 +1151,4 @@ function show_crm_form() {
 // =========================================================================
 require_once get_stylesheet_directory() . '/deck.php';
 require_once get_stylesheet_directory() . '/agreement.php';
+require_once get_stylesheet_directory() . '/book-appointment.php';
