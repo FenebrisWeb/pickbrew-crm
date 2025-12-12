@@ -146,9 +146,9 @@ function render_agreement_form() {
             
             // New Footer
             $msg .= "Thank you. Be well<br><br>";
-            $msg .= "Sincerely,<br>";
-            $msg .= "Aryan Mamtora<br>";
-            $msg .= "Co-Founder<br><br>";
+            $msg .= "<br><br>Sincerely,<br>";
+            $msg .= "<strong>Aryan Mamtora</strong><br>";
+            $msg .= "<strong>Co-Founder</strong><br><br>";
             $msg .= "PickBrew<br>";
             $msg .= "📞 +1 559 238 1999<br>";
             $msg .= "✉️ Aryan@pickbrew.com<br>";
@@ -585,7 +585,7 @@ function handle_agreement_signature_post() {
         $msg .= "The agreement for <strong>" . get_the_title($post_id) . "</strong> has been signed by the merchant.<br><br>";
         $msg .= "<strong>Signer Name:</strong> $name<br>";
         $msg .= "<strong>Date Signed:</strong> $date<br><br>";
-        $msg .= "You can view the signed agreement here (requires password): <br><a href='$link'>$link</a>";
+        $msg .= "You can view the signed agreement here (requires password): <br><a href='$link'>View</a>";
         
         // 3. Set Headers (Important for delivery)
         $domain = parse_url(get_site_url(), PHP_URL_HOST);

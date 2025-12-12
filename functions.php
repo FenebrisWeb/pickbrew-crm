@@ -425,22 +425,24 @@ function show_crm_form() {
             $client_cc = isset($_POST['email_cc']) ? sanitize_email($_POST['email_cc']) : '';
             $contact_fname = isset($_POST['contact_first_name']) ? sanitize_text_field($_POST['contact_first_name']) : 'Friend';
 
+            // UPDATED: Use HTML Headers for all client emails
             $client_headers = array();
-            $client_headers[] = 'Content-Type: text/plain; charset=UTF-8'; // Simple text for these
+            $client_headers[] = 'Content-Type: text/html; charset=UTF-8'; 
             if ( !empty($client_cc) ) {
                 $client_headers[] = 'Cc: ' . $client_cc;
             }
 			
 			// =================================================================
-            // DEFINE SIGNATURE (Applied to all Client Emails)
+            // DEFINE HTML SIGNATURE
             // =================================================================
-            $signature  = "\n\nAryan Mamtora - Director\n";
-            $signature .= "Sales & Business Development\n";
-            $signature .= "Pickbrew\n";
-            $signature .= "aryan@pickbrew.com\n";
-            $signature .= "(559)227-1999\n";
-            $signature .= "pickbrew.com\n";
-            $signature .= "Click here to book a meeting - https://collective.pickbrew.com/book-an-appointment/";
+            $signature  = "<br><br>Sincerely,<br>";
+            $signature .= "<strong>Aryan Mamtora</strong><br>";
+            $signature .= "<strong>Co-Founder</strong><br><br>";
+            $signature .= "PickBrew<br>";
+            $signature .= "📞 +1 559 238 1999<br>";
+            $signature .= "✉️ Aryan@pickbrew.com<br>";
+            $signature .= "🌐 www.pickbrew.com<br><br>";
+            $signature .= "<a href='https://outlook.office.com/bookwithme/user/37ff8aac496d4317a930771549d28f0e@pickbrew.com?anonymous&ep=signature'>Schedule A Call</a>";
 
             // --- E1. Mockup Email (Optional) ---
             if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
@@ -450,11 +452,14 @@ function show_crm_form() {
                 $theme  = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
                 
                 $attachments = array();
-                $msg_body = "Hello,\n\n";
+                
+                // Wrap content in div for font
+                $msg_body = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+                $msg_body .= "Hello,<br><br>";
 
                 if ( $m_type === 'URL' ) {
                     // Send URL only
-                    $msg_body .= "Please check the following link to view your theme mockup:\n" . $m_url . "\n\n";
+                    $msg_body .= "Please check the following link to view your theme mockup:<br>" . $m_url . "<br><br>";
                     $msg_body .= "Let us know your thoughts.";
                 } else {
                     // Send Image Attachment
@@ -468,6 +473,7 @@ function show_crm_form() {
                 
                 // ADD SIGNATURE
                 $msg_body .= $signature;
+                $msg_body .= "</div>";
                 
                 wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
             }
@@ -479,10 +485,12 @@ function show_crm_form() {
                 $pw = isset($_POST['client_password']) ? sanitize_text_field($_POST['client_password']) : '';
                 
                 if(!empty($u) || !empty($pw)) {
-                    $msg_body = "Hello,\n\nHere are your login details:\n\nUser: $u\nPass: $pw\n\nPlease keep these credentials safe.";
+                    $msg_body = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+                    $msg_body .= "Hello,<br><br>Here are your login details:<br><br><strong>User:</strong> $u<br><strong>Pass:</strong> $pw<br><br>Please keep these credentials safe.";
                     
                     // ADD SIGNATURE
                     $msg_body .= $signature;
+                    $msg_body .= "</div>";
 
                     wp_mail( $client_to, "Your Login Credentials", $msg_body, $client_headers );
                 }
@@ -491,14 +499,26 @@ function show_crm_form() {
             // --- E3. Followup Email (NEW) ---
             if ( isset($_POST['send_followup_check']) && $_POST['send_followup_check']=='yes' ) {
                 
-                $f_subject = "Checking in - " . $title; 
-                $f_msg  = "Hi $contact_fname,\n\n";
-                $f_msg .= "I hope you are having a great week!\n\n";
-                $f_msg .= "I just wanted to follow up regarding your agreement and app setup. Do you have any questions or need any assistance from our side?\n\n";
-                $f_msg .= "We are looking forward to getting everything live for you.";
+                $f_subject = "Checking in - " . $title;
+                
+                $f_msg  = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+                $f_msg .= "Hello Team,<br><br>";
+                $f_msg .= "I just wanted to follow up on my previous message. My name is Aryan with <strong>PickBrew</strong>. We build order-ahead mobile apps for coffee shops, fully integrated with Square to make ordering smooth for both you and your customers.<br><br>";
+                $f_msg .= "As a reminder, our mobile app comes with <strong>No Set-Up Fees, No Obligations, and No Contracts.</strong><br><br>";
+                $f_msg .= "We also recently rolled out new features designed to help boost sales and customer engagement for $title:<br>";
+                $f_msg .= "<ul>";
+                $f_msg .= "<li><strong>Push Marketing</strong> – Quickly reach your customers with promotions, specials, and updates directly on their phones.</li>";
+                $f_msg .= "<li><strong>Square Gift Card Integration</strong> – Customers can now purchase and redeem Square gift cards through your app, helping increase sales and loyalty.</li>";
+                $f_msg .= "</ul>";
+                $f_msg .= "If you’re interested, I’d be happy to walk you through everything on a quick Google Meet call. Do you have time tomorrow for a brief chat?<br><br>";
+                $f_msg .= "Just reply \"<strong>Yes</strong>\" and we’ll send over a short form to get a mock-up of your app started.<br><br>";
+                $f_msg .= "Looking forward to connecting!<br>";
+                $f_msg .= "<a href='https://drive.google.com/file/d/191oeLYERkRKp_gjncPfruHAad8iBG21b/view'>Pickbrew Deck</a><br><br>";
+                $f_msg .= "<strong>Thank you. Be well</strong>";
                 
                 // ADD SIGNATURE
                 $f_msg .= $signature;
+                $f_msg .= "</div>";
 
                 // Send to Client
                 wp_mail( $client_to, $f_subject, $f_msg, $client_headers );
@@ -508,7 +528,7 @@ function show_crm_form() {
                 $a_msg = "Hello Admin,<br><br>A <strong>Followup Email</strong> was successfully sent to the client.<br><br>";
                 $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
                 $a_msg .= "<strong>CC:</strong> $client_cc <br><br>";
-                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>$f_msg</pre>";
+                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px; white-space: pre-wrap;'>".strip_tags($f_msg)."</pre>";
                 
                 wp_mail( $admin_emails, $a_sub, $a_msg, $headers );
             }
@@ -517,12 +537,15 @@ function show_crm_form() {
             if ( isset($_POST['send_thanksgiving_check']) && $_POST['send_thanksgiving_check']=='yes' ) {
                 
                 $t_subject = "Happy Thanksgiving from PickBrew!";
-                $t_msg  = "Hi $contact_fname,\n\n";
-                $t_msg .= "Wishing you a wonderful Thanksgiving filled with joy and gratitude.\n\n";
+                
+                $t_msg  = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+                $t_msg .= "Hi $contact_fname,<br><br>";
+                $t_msg .= "Wishing you a wonderful Thanksgiving filled with joy and gratitude.<br><br>";
                 $t_msg .= "We really appreciate the opportunity to work with you and the team at $title.";
                 
                 // ADD SIGNATURE
                 $t_msg .= $signature;
+                $t_msg .= "</div>";
 
                 // Send to Client
                 wp_mail( $client_to, $t_subject, $t_msg, $client_headers );
@@ -532,7 +555,7 @@ function show_crm_form() {
                 $a_msg = "Hello Admin,<br><br>A <strong>Thanksgiving Email</strong> was successfully sent to the client.<br><br>";
                 $a_msg .= "<strong>Recipient:</strong> $client_to <br>";
                 $a_msg .= "<strong>CC:</strong> $client_cc <br><br>";
-                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>$t_msg</pre>";
+                $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>".strip_tags($t_msg)."</pre>";
                 
                 wp_mail( $admin_emails, $a_sub, $a_msg, $headers );
             }
@@ -879,14 +902,14 @@ function show_crm_form() {
         <div class="mockup-box" style="margin-top:20px; border-color:#d1e7dd; background:#f0f9eb;">
             <label style="font-weight:700; cursor:pointer;">
                 <input type="checkbox" name="send_followup_check" value="yes" style="transform:scale(1.3); margin-right:10px;"> 
-                Send Followups Email
+                Send Follow Up Email
             </label>
         </div>
 
         <div class="mockup-box" style="margin-top:20px; border-color:#ffecb5; background:#fff3cd;">
             <label style="font-weight:700; cursor:pointer;">
                 <input type="checkbox" name="send_thanksgiving_check" value="yes" style="transform:scale(1.3); margin-right:10px;"> 
-                Send Thanksgiving Mail
+                Send Thanks Giving Mail
             </label>
         </div>
 
