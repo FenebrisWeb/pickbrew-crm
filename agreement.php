@@ -193,7 +193,7 @@ function render_agreement_form() {
                     <option value="">Select Cap Option</option>
                     <?php 
                     $rates = [5, 6, 7]; $prices = [249.99, 299.99, 349.99];
-                    foreach($rates as $r) { foreach($prices as $p) { echo "<option value='{$r}%, capped at \${$p}/month'>{$r}%, capped at \${$p}/month</option>"; } }
+                    foreach($rates as $r) { foreach($prices as $p) { echo "<option value='{$r}%, capped at \${$p}/month'>{$r}%, capped at \${$p}/month, per location</option>"; } }
                     ?>
                 </select>
             </div>
