@@ -59,19 +59,55 @@ function render_agreement_form() {
 
         // C. GENERATE AGREEMENT CONTENT
         $html_content = '
-        <div style="font-family:\'Inter\', sans-serif; line-height:1.6; color:#333;">
+        <div style="font-family:\'Inter\', sans-serif; line-height:1.6; color:#333; max-width:1250px; margin:0 auto; width:100%; padding:20px; box-sizing:border-box;">
             <h2 style="text-align:center; margin-bottom:30px;">Merchant Terms and Conditions for the PickBrew Platform</h2>
             
             <p>PickBrew, Inc. (“PickBrew”, “us”, “our”) will provide <strong>'. $merchant .'</strong> (“you”, “your”, or “'. $merchant .'”) with a mobile application (also “Mobile App”) subject to the terms outlined in the following PickBrew Merchant Terms and Conditions (“Merchant Terms”).</p>
 
-            <p><strong>6. PickBrew Licensing Fees, Payment Terms, and Taxes:</strong><br>
-            PickBrew will not charge any fees for design, development, or ongoing management of the '. $merchant .' Mobile App.</p>
-            
-            <p><strong>Licensing Fees:</strong><br>
-            '. $cap .', payable monthly.</p>
+            <p><strong>1. Authorization of use:</strong> PickBrew authorizes your use of the Mobile App for the purpose of enabling '. $merchant .' customers (“users”) to initiate transactions on the “'. $merchant .'” Mobile App for iPhone and Android devices, and for the development, implementation, execution, tracking, and/or management of promotional and marketing campaigns executed through the '. $merchant .' Mobile App. By utilizing the PickBrew, Inc. software products (Mobile App, backend for viewing order details, customer information, etc.), and as an express condition of such use and access, you agree to comply with the following Merchant Terms that form a complete and binding agreement between '. $merchant .' and PickBrew, Inc.</p>
 
-            <p><strong>Invoicing from PickBrew, Inc. to '. $merchant .':</strong><br>
-            Invoicing cycle: Monthly If there is an outstanding balance.</p>
+            <p><strong>2. Term:</strong> The term of this agreement is for 1 year, with an automatic renewal on a monthly basis with the same terms as outlined in this agreement, unless a new Merchant Agreement is agreed to. The continuation of using the Mobile App will be subject to mutually agreed terms. '. $merchant .' can determine which store locations to include in the Mobile App menu for customers to view and order from. Additional locations can be added by email request and are subject to the same terms of the master agreement. This agreement is at will and '. $merchant .'\'s may terminate this Agreement upon days notice through email/mail. PickBrew Inc. can terminate this Agreement upon days notice through email/mail. '. $merchant .' would be responsible for any monies owed as a result of the Services up to and including the last day on which the Services are provided. There are no additional fees associated with terminating the Agreement.</p>
+
+            <p><strong>3. Intellectual Property:</strong> '. $merchant .' agrees and acknowledges that PickBrew, Inc. owns and retains ownership of all the proprietary computer code and programs (“Intellectual Property”) created and maintained by PickBrew, Inc. that powers the PickBrew platform (Mobile App, Merchant Dashboard). This includes all PickBrew related copyright, trademark, and PickBrew specific content. Under the terms of this agreement, upon termination of the Agreement, PickBrew, Inc. would not be able to transfer the '. $merchant .' Mobile App to '. $merchant .' for the purpose of continued use by '. $merchant .'. PickBrew, Inc. will remove the app from the Apple Appstore and Google Play Store within 7 or fewer days upon the termination of the Agreement.</p>
+
+            <p><strong>4. Merchant Tablet:</strong> You authorize PickBrew to send orders to an installed device with the PickBrew Merchant app on it. Orders would need to be accepted/rejected from the Merchant App.</p>
+
+            <p><strong>5. E-Commerce Transactions:</strong></p>
+            <ul>
+                <li>You shall not use the PickBrew platform for transactions in connection with any illegal activity, in violation of any federal, state, or local law, or in connection with any lottery or gambling activity. Tobacco and alcoholic products cannot be sold in the PickBrew platform. The PickBrew mobile app will promote your products at their price as determined from information available from your POS.</li>
+                <li>No Charge-Back Guarantee; Limitations. To the extent that '. $merchant .' receives a chargeback from a user, '. $merchant .' will not seek reimbursement from PickBrew Inc. PickBrew will assist '. $merchant .' with obtaining any relevant information that can assist in fighting chargebacks from authorized transactions that a customer deems to be unauthorized.</li>
+            </ul>
+
+            <p><strong>6. PickBrew Licensing Fees, Payment Terms, and Taxes:</strong></p>
+            <ul>
+                <li><strong>PickBrew will not charge any fees for design, development, or ongoing management of the '. $merchant .' Mobile App.</strong></li>
+                <li><strong>Licensing Fees:</strong>
+                    <ul style="margin-top:5px; margin-bottom:5px;">
+                        <li>'. $cap .', payable monthly.</li>
+                        <li>Invoicing from PickBrew, Inc. to '. $merchant .': Invoicing cycle: Monthly If there is an outstanding balance.</li>
+                    </ul>
+                </li>
+                <li>You agree that you are registered for sales and use tax collection purposes in all jurisdictions in which your goods and services will be provided in connection with your use of the PickBrew platform. Collected sales tax will pass through to your corporate bank account and '. $merchant .' will be responsible to pay all collected sales taxes (local and state). '. $merchant .' is responsible for all taxes related to purchases.</li>
+                <li>You may opt to have PickBrew activate tipping through the app. 100% of tips would be sent to '. $merchant .' if turned on. In app tipping will be turned off on the '. $merchant .' Mobile App until '. $merchant .' informs PickBrew, Inc. of a change.</li>
+                <li>PickBrew will send summary accounting reports in accordance with a schedule that follows the standard invoice cycle that is selected in this Agreement.</li>
+            </ul>
+
+            <p><strong>7. Data Reporting and Analytics:</strong> Certain data is collected on the PickBrew platform and will be provided to you upon request via electronic transmission during the term of this agreement. Data can include app download numbers, customer ordering statistics, promotion and loyalty program usage, and other sales and marketing metrics. Subject to the Merchant Terms and PickBrew’s Privacy Policy for user protection, PickBrew grants you a revocable license during the Term of this Agreement to export any user data provided to or made available to you as long as its use or transfer is within the scope of all privacy laws in the USA. Data can be sent as a spreadsheet file.</p>
+
+            <p><strong>8. Granted Licenses:</strong> In order to facilitate marketing initiatives, you are granted, during the Term of this Agreement, a limited, revocable license to use PickBrew promotional materials including product images and trademarks. You also grant PickBrew a revocable license to use, copy, reproduce, modify, license, distribute, and publish any of your “Merchant Content,” that includes trademarks, service marks, logos, photographs, text, images or other content for publication as part of marketing or promotion of your use of the PickBrew platform. All marketing campaigns will need to be approved in advance by '. $merchant .'. '. $merchant .' represents and warrants that they have the right to provide the Merchant Content to us, and that the use, copying, modification, and publication of the Merchant Content by PickBrew and by PickBrew’s affiliates and advertising partners: (a) will not infringe, violate or misappropriate any third party copyright, patent, trade secret or other proprietary rights, (b) will not infringe any rights of publicity or privacy.</p>
+
+            <p><strong>9. Rewards:</strong> All rewards on the '. $merchant .' Mobile App (built and managed by PickBrew, Inc.) are subject to your approval and can be amended at your discretion. At the user’s discretion, they can opt to utilize the rewards point function that will subtract rewards points on a 1-point equaling one-cent ($.01) basis from the pre-tax gross sales receipt of their transaction (100 points = $1).</p>
+            <ul>
+                <li>Initial “starter” reward: Promotion of $ dollars as as credit to be used towards the purchase of items in the Mobile App</li>
+                <li>Ongoing: Reward dollars are added to a user account in the ratio of % per transaction, before taxes, excluding tips (if any)..</li>
+            </ul>
+
+            <p><strong>10. Merchant Representations and Warranties:</strong> You represent and warrant to PickBrew that you have the right, power and authority to enter into this agreement to be bound by these Merchant Terms. You agree that the terms will not conflict with or violate any agreements or instruments by which '. $merchant .' is bound, any applicable law, or any rights of any third party;</p>
+
+            <p><strong>11. Disclaimer of Warranties and Indemnification.</strong> PickBrew will make reasonable efforts to provide the PickBrew platform and other services described in these Merchant Terms to '. $merchant .' in a workmanlike manner and in compliance with the applicable descriptions herein. Your sole and exclusive remedy, and PickBrew’s sole and exclusive liabilities, for maintaining the system shall be as follows: (a) if you notify PickBrew of any such issue with the Mobile App, we will take a best effort approach to resolving the issue within (7) days of its occurrence. We cannot warranty that the Mobile App will be bug free. PickBrew shall promptly remedy the error in accordance with the requirements of these Merchant Terms. PickBrew does not warrant or guarantee that the '. $merchant .' mobile application or related services will always operate error-free.<br>
+            <br>Hold Harmless Agreement: '. $merchant .' shall hold harmless PickBrew, Inc, its’ officers and employees from any and all liabilities, claims, losses, costs, or expenses to the person or property of another, lawsuits, judgments, and/or expenses, including attorney fees, arising either directly or indirectly from any act or failure to act by or any of its officers or employees, which may occur during or which may arise out of the performance of this Agreement.</p>
+
+            <p><strong>12.</strong> The laws of the Commonwealth of Massachusetts shall govern this Agreement.</p>
             
             <hr style="margin:30px 0; border:0; border-top:1px solid #eee;">
             <p style="font-size:12px; color:#666;">
@@ -107,7 +143,17 @@ function render_agreement_form() {
             $msg .= "Upon clicking on the agreement link, you will be prompted to enter a password:<br>";
             $msg .= "<strong>Password:</strong> <span style='background:#eee; padding:5px; font-weight:bold;'>$password</span><br><br>";
             $msg .= "Click to view the AGREEMENT: <a href='$link'>$link</a><br><br>";
-            $msg .= "Sincerely,<br>The team at PickBrew<br>PickBrew.com<br>";
+            
+            // New Footer
+            $msg .= "Thank you. Be well<br><br>";
+            $msg .= "Sincerely,<br>";
+            $msg .= "Aryan Mamtora<br>";
+            $msg .= "Co-Founder<br><br>";
+            $msg .= "PickBrew<br>";
+            $msg .= "📞 +1 559 238 1999<br>";
+            $msg .= "✉️ Aryan@pickbrew.com<br>";
+            $msg .= "🌐 www.pickbrew.com<br><br>";
+            $msg .= "<a href='https://outlook.office.com/bookwithme/user/37ff8aac496d4317a930771549d28f0e@pickbrew.com?anonymous&ep=signature'>Schedule A Call</a>";
             
             wp_mail($email, "Agreement: $merchant", $msg, $headers);
 
@@ -302,7 +348,7 @@ function pickbrew_custom_password_form() {
         }
     </style>
     
-    <div class="pw-form-container">
+    <div class="sign-wrapper-outer">
         <h2 class="pw-form-title">Protected: Agreement Form</h2>
         <p class="pw-text">This content is password-protected. To view it, please enter the password below.</p>
         
@@ -352,56 +398,61 @@ function append_signature_section($content) {
     .sig-canvas { border:1px solid #ccc; width:100%; height:150px; background:#fff; cursor:crosshair; touch-action: none; }
     .sig-input-type { width:100%; border:none; border-bottom:1px solid #ccc; font-family:"Dancing Script", cursive; font-size:32px; padding:10px; outline:none; background:transparent; }
     .sig-label { font-weight:700; display:block; margin-bottom:8px; font-size:14px; color:#444; }
-    .sign-wrap { max-width:600px; margin-top:50px; background:#fafafa; padding:30px; border-radius:8px; border:1px solid #eee; }
+    /* Updated Container Styles */
+    .sign-wrapper-outer { max-width:1250px; margin:0 auto; width:100%; padding:0 20px; box-sizing:border-box; }
+    .sign-wrap { max-width:600px; margin:50px 0; background:#fafafa; padding:30px; border-radius:8px; border:1px solid #eee; width:100%; box-sizing:border-box; }
+    @media (max-width: 480px) { .sign-wrap { padding: 20px; } }
     </style>';
 
     // Build Form HTML
     ob_start();
     ?>
-    <div class="sign-wrap" id="signArea">
-        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Acceptance</h3>
-        <p style="font-size:13px; color:#666;">By signing below, you agree to the terms outlined above.</p>
-        
-        <form method="post" id="signForm">
-            <input type="hidden" name="agreement_id" value="<?php echo get_the_ID(); ?>">
+    <div class="sign-wrapper-outer">
+        <div class="sign-wrap" id="signArea">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Acceptance</h3>
+            <p style="font-size:13px; color:#666;">By signing below, you agree to the terms outlined above.</p>
             
-            <div style="margin-bottom:20px;">
-                <label class="sig-label">Name *</label>
-                <input type="text" name="signer_name" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;">
-            </div>
+            <form method="post" id="signForm">
+                <input type="hidden" name="agreement_id" value="<?php echo get_the_ID(); ?>">
+                
+                <div style="margin-bottom:20px;">
+                    <label class="sig-label">Name *</label>
+                    <input type="text" name="signer_name" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;">
+                </div>
 
-            <div style="margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <label class="sig-label" style="margin:0;">Signature *</label>
-                    <div>
-                        <button type="button" class="sig-btn active" id="btnDraw" onclick="setSigMode('draw')">Draw ✏️</button>
-                        <button type="button" class="sig-btn" id="btnType" onclick="setSigMode('type')">Type ⌨️</button>
-                        <button type="button" style="font-size:11px; color:red; border:none; background:none; cursor:pointer; margin-left:10px;" onclick="clearSig()">Clear</button>
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <label class="sig-label" style="margin:0;">Signature *</label>
+                        <div>
+                            <button type="button" class="sig-btn active" id="btnDraw" onclick="setSigMode('draw')">Draw ✏️</button>
+                            <button type="button" class="sig-btn" id="btnType" onclick="setSigMode('type')">Type ⌨️</button>
+                            <button type="button" style="font-size:11px; color:red; border:none; background:none; cursor:pointer; margin-left:10px;" onclick="clearSig()">Clear</button>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff; border:1px solid #ddd; padding:10px; position:relative;">
+                        <div id="drawContainer">
+                            <canvas id="sigCanvas" width="500" height="150" class="sig-canvas"></canvas>
+                            <input type="hidden" name="sig_data_draw" id="sigDataDraw">
+                        </div>
+                        
+                        <div id="typeContainer" style="display:none; padding:40px 10px;">
+                            <input type="text" name="sig_data_type" class="sig-input-type" placeholder="Type your name here...">
+                        </div>
+                        
+                        <input type="hidden" name="sig_mode" id="sigMode" value="draw">
                     </div>
                 </div>
 
-                <div style="background:#fff; border:1px solid #ddd; padding:10px; position:relative;">
-                    <div id="drawContainer">
-                        <canvas id="sigCanvas" width="500" height="150" class="sig-canvas"></canvas>
-                        <input type="hidden" name="sig_data_draw" id="sigDataDraw">
-                    </div>
-                    
-                    <div id="typeContainer" style="display:none; padding:40px 10px;">
-                        <input type="text" name="sig_data_type" class="sig-input-type" placeholder="Type your name here...">
-                    </div>
-                    
-                    <input type="hidden" name="sig_mode" id="sigMode" value="draw">
+                <div style="margin-bottom:25px;">
+                    <label class="sig-label">Date</label>
+                    <input type="text" id="dateField" disabled style="background:#f9f9f9; border:1px solid #eee; padding:10px; width:100%; color:#555;">
+                    <input type="hidden" name="sign_date" id="dateHidden">
                 </div>
-            </div>
 
-            <div style="margin-bottom:25px;">
-                <label class="sig-label">Date</label>
-                <input type="text" id="dateField" disabled style="background:#f9f9f9; border:1px solid #eee; padding:10px; width:100%; color:#555;">
-                <input type="hidden" name="sign_date" id="dateHidden">
-            </div>
-
-            <button type="submit" name="submit_signature" class="sub-btn" onclick="return prepareSubmit()">Submit Agreement</button>
-        </form>
+                <button type="submit" name="submit_signature" class="sub-btn" onclick="return prepareSubmit()">Submit Agreement</button>
+            </form>
+        </div>
     </div>
 
     <script>
