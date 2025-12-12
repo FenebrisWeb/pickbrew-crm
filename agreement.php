@@ -352,6 +352,9 @@ function pickbrew_custom_password_form() {
             background: #eee; 
             border-color: #999;
         }
+        .pass-input-pass {
+            width: 200px !important;
+        }
     </style>
     
     <div class="sign-wrapper-outer">
@@ -360,7 +363,7 @@ function pickbrew_custom_password_form() {
         
         <form action="' . esc_url( site_url( 'wp-login.php?action=postpass', 'login_post' ) ) . '" method="post">
             <span class="pw-label">Password:</span>
-            <input name="post_password" id="' . $label . '" type="password" class="pw-input" />
+            <input name="post_password" id="' . $label . '" type="password" class="pw-input pass-input-pass" />
             <input type="submit" name="Submit" class="pw-submit" value="Enter" />
         </form>
     </div>
