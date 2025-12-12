@@ -136,13 +136,17 @@ function render_agreement_form() {
             $link = get_permalink($post_id);
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
+            // Add Admins to CC
+            $headers[] = 'Cc: aryan@pickbrew.com';
+            $headers[] = 'Cc: amit.kumar@fenebrisindia.com';
+
             // Email to Merchant
             $msg  = "Hello $merchant,<br><br>";
             $msg .= "Please find a link to the PickBrew agreement. Let us know if you have any questions.<br>";
             $msg .= "We appreciate the opportunity to help and look forward to making this amazing for you and your brand.<br><br>";
-            $msg .= "Upon clicking on the agreement link, you will be prompted to enter a password:<br>";
+            $msg .= "Upon clicking on the agreement link, you will be prompted to enter a password:<br><br>";
             $msg .= "<strong>Password:</strong> <span style='background:#eee; padding:5px; font-weight:bold;'>$password</span><br><br>";
-            $msg .= "Click to view the AGREEMENT: <a href='$link'>$link</a><br><br>";
+            $msg .= "Click to view the AGREEMENT: <a href='$link'>View</a><br><br>";
             
             // New Footer
             $msg .= "Thank you. Be well<br><br>";
@@ -160,7 +164,9 @@ function render_agreement_form() {
             // Email to Admin
             $admin_email = get_option('admin_email');
             $admin_msg = "New Agreement created by $creator.<br>Merchant: $merchant<br>Link: $link<br>Pass: $password";
-            wp_mail($admin_email, "New Agreement Generated", $admin_msg, $headers);
+            // Note: Sending this without the CC headers to avoid double emailing admins if they are also the main admin
+            $admin_headers = array('Content-Type: text/html; charset=UTF-8'); 
+            wp_mail($admin_email, "New Agreement Generated", $admin_msg, $admin_headers);
 
             $message = '<div style="background:#d4edda; color:#155724; padding:15px; margin-bottom:20px; border-radius:5px; text-align:center; font-family:\'Inter\';">✅ Agreement Created & Email Sent!</div>';
         }
