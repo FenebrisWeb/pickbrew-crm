@@ -445,37 +445,57 @@ function show_crm_form() {
             $signature .= "<a href='https://outlook.office.com/bookwithme/user/37ff8aac496d4317a930771549d28f0e@pickbrew.com?anonymous&ep=signature'>Schedule A Call</a>";
 
             // --- E1. Mockup Email (Optional) ---
-            if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
+            // if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
                 
+            //     $m_type = isset($_POST['mockup_type']) ? $_POST['mockup_type'] : 'Image';
+            //     $m_url  = isset($_POST['mockup_url']) ? esc_url_raw($_POST['mockup_url']) : '';
+            //     $theme  = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
+                
+            //     $attachments = array();
+                
+            //     // Wrap content in div for font
+            //     $msg_body = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+            //     $msg_body .= "Hello,<br><br>";
+
+            //     if ( $m_type === 'URL' ) {
+            //         // Send URL only
+            //         $msg_body .= "Please check the following link to view your theme mockup:<br>" . $m_url . "<br><br>";
+            //         $msg_body .= "Let us know your thoughts.";
+            //     } else {
+            //         // Send Image Attachment
+            //         if ( $theme === 'Light' ) {
+            //             $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-light.webp'; 
+            //         } elseif ( $theme === 'Dark' ) {
+            //             $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-dark.webp'; 
+            //         }
+            //         $msg_body .= "Please see the attached mockup image for your review.";
+            //     }
+                
+            //     // ADD SIGNATURE
+            //     $msg_body .= $signature;
+            //     $msg_body .= "</div>";
+                
+            //     wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
+            // }
+            if ( isset($_POST['send_mockup_check']) && $_POST['send_mockup_check']=='yes' ) {
                 $m_type = isset($_POST['mockup_type']) ? $_POST['mockup_type'] : 'Image';
                 $m_url  = isset($_POST['mockup_url']) ? esc_url_raw($_POST['mockup_url']) : '';
-                $theme  = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : '';
-                
-                $attachments = array();
-                
-                // Wrap content in div for font
+    
                 $msg_body = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
                 $msg_body .= "Hello,<br><br>";
 
                 if ( $m_type === 'URL' ) {
-                    // Send URL only
                     $msg_body .= "Please check the following link to view your theme mockup:<br>" . $m_url . "<br><br>";
-                    $msg_body .= "Let us know your thoughts.";
                 } else {
-                    // Send Image Attachment
-                    if ( $theme === 'Light' ) {
-                        $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-light.webp'; 
-                    } elseif ( $theme === 'Dark' ) {
-                        $attachments[] = WP_CONTENT_DIR . '/uploads/2025/12/demo-dark.webp'; 
-                    }
-                    $msg_body .= "Please see the attached mockup image for your review.";
+                    // Text-only mention of the theme since images are removed
+                    $theme = isset($_POST['mockup_theme']) ? sanitize_text_field($_POST['mockup_theme']) : 'Selected';
+                    $msg_body .= "We have prepared your mockup using the <strong>" . $theme . " Theme</strong>. Let us know your thoughts.";
                 }
-                
-                // ADD SIGNATURE
-                $msg_body .= $signature;
-                $msg_body .= "</div>";
-                
-                wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers, $attachments );
+    
+                $msg_body .= $signature . "</div>";
+    
+                // No $attachments array passed anymore
+                wp_mail( $client_to, "Your Theme Mockup", $msg_body, $client_headers );
             }
 
             // --- E2. Credentials Email (Optional) ---
@@ -558,6 +578,27 @@ function show_crm_form() {
                 $a_msg .= "<strong>Content Sent:</strong><br><pre style='background:#eee; padding:10px;'>".strip_tags($t_msg)."</pre>";
                 
                 wp_mail( $admin_emails, $a_sub, $a_msg, $headers );
+            }
+
+            // --- E5. Send Pickbrew Demo App ---
+            if ( isset($_POST['send_demo_app_check']) && $_POST['send_demo_app_check']=='yes' ) {
+                $d_subject = "Experience the PickBrew Demo App";
+    
+                $d_msg  = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
+                $d_msg .= "Hi " . $contact_fname . ",<br><br>";
+                $d_msg .= "I wanted to share our PickBrew Demo App so you can see firsthand how the ordering experience works for your customers.<br><br>";
+                $d_msg .= "<strong>View the Demo App here:</strong> <a href='https://pickbrew.com/demo'>PickBrew Demo App Link</a><br><br>";
+                $d_msg .= "This demo showcases the Square integration, smooth checkout process, and loyalty features we discussed.<br>";
+    
+                $d_msg .= $signature . "</div>";
+
+                // Send to Client with CC to Aryan (already in client_headers logic if needed, 
+                // but we'll ensure CC Aryan is explicit here)
+                $demo_headers = $client_headers;
+                // $demo_headers[] = 'Cc: Aryan@pickbrew.com';
+                $demo_headers[] = 'Cc: Aryan@pickbrew.com, amit@pickbrew.com';
+
+                wp_mail( $client_to, $d_subject, $d_msg, $demo_headers );
             }
             
             // REDIRECTION LOGIC UPDATED
@@ -866,11 +907,11 @@ function show_crm_form() {
                     <input type="hidden" name="mockup_theme" id="thmInput" value="<?php echo $gv('mockup_theme',$db); ?>">
                     <div>
                         <div class="t-card" onclick="selTheme('Light',this)">
-                            <img src="https://via.placeholder.com/300x150?text=Light+Theme" alt="Light">
+                            <!-- <img src="https://via.placeholder.com/300x150?text=Light+Theme" alt="Light"> -->
                             <strong>Light Theme</strong>
                         </div><br>
                         <div class="t-card" onclick="selTheme('Dark',this)">
-                            <img src="https://via.placeholder.com/300x150?text=Dark+Theme" alt="Dark">
+                            <!-- <img src="https://via.placeholder.com/300x150?text=Dark+Theme" alt="Dark"> -->
                             <strong>Dark Theme</strong>
                         </div>
                     </div>
@@ -882,6 +923,13 @@ function show_crm_form() {
                     </div>
                 </div>
             </div>
+        </div>
+        <!-- Pickbrew Demo App  -->
+        <div class="mockup-box" style="margin-top:20px; border-color:#d1e7dd; background:#f0f9eb;">
+            <label style="font-weight:700; cursor:pointer;">
+            <input type="checkbox" name="send_demo_app_check" value="yes" style="transform:scale(1.3); margin-right:10px;" <?php checked($gv('send_demo_app_check',$db),'yes'); ?>> 
+                Send Pickbrew Demo App
+            </label>
         </div>
 
         <div class="mockup-box" style="margin-top:20px; border-color:#eee; background:#fffdf0;">
